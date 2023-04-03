@@ -712,24 +712,40 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       await immutableZoneController.pause(immutableZone.address);
 
       // order cannot be filled after zone is paused
-      await expect(
-        marketplaceContract
-          .connect(buyer)
-          .fulfillAdvancedOrder(
-            order,
-            [],
-            toKey(0),
-            ethers.constants.AddressZero,
-            {
-              value,
-            }
-          )
-      )
-        .to.be.revertedWithCustomError(
-          marketplaceContract,
-          "InvalidRestrictedOrder"
+      if (!process.env.REFERENCE) {
+        await expect(
+          marketplaceContract
+            .connect(buyer)
+            .fulfillAdvancedOrder(
+              order,
+              [],
+              toKey(0),
+              ethers.constants.AddressZero,
+              {
+                value,
+              }
+            )
         )
-        .withArgs(orderHash);
+          .to.be.revertedWithCustomError(
+            marketplaceContract,
+            "InvalidRestrictedOrder"
+          )
+          .withArgs(orderHash);
+      } else {
+        await expect(
+          marketplaceContract
+            .connect(buyer)
+            .fulfillAdvancedOrder(
+              order,
+              [],
+              toKey(0),
+              ethers.constants.AddressZero,
+              {
+                value,
+              }
+            )
+        ).to.be.reverted;
+      }
 
       // owner unpauses the zone, redeploying to the same address and setting the same immutable signer
       const redeployedZone = await createZone(immutableZoneController, salt);

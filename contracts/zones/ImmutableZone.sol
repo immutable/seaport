@@ -22,7 +22,7 @@ import {
 
 import { PausableZoneInterface } from "./interfaces/PausableZoneInterface.sol";
 
-import { ECDSA } from "openzeppelin-contracts/utils/cryptography/ECDSA.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /**
  * @title  ImmutableZone

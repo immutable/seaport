@@ -1,5 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+import { arrayify } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
 
 import { merkleTree } from "./utils/criteria";
@@ -26,7 +27,6 @@ import type {
 } from "../typechain-types";
 import type { SeaportFixtures } from "./utils/fixtures";
 import type { Contract, Wallet } from "ethers";
-import { arrayify } from "ethers/lib/utils";
 
 const { parseEther } = ethers.utils;
 
@@ -40,7 +40,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
   let testERC721: TestERC721;
   let immutableZoneController: ImmutableZoneController;
   let immutableZone: ImmutableZone;
-  let salt = randomHex();
+  const salt = randomHex();
 
   let checkExpectedEvents: SeaportFixtures["checkExpectedEvents"];
   let createOrder: SeaportFixtures["createOrder"];
@@ -470,7 +470,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         getItemETH(parseEther("10"), parseEther("10"), seller.address),
         getItemETH(parseEther("1"), parseEther("1"), owner.address),
       ];
-      const { order, orderHash, value } = await createOrder(
+      const { order, value } = await createOrder(
         seller,
         immutableZone,
         offer,
@@ -516,7 +516,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         2 // FULL_RESTRICTED
       );
       // generate fake modified signature for which ecrecover will return zero address
-      let fakeSig = await buyer.signMessage(arrayify(orderHash));
+      const fakeSig = await buyer.signMessage(arrayify(orderHash));
       order.extraData = fakeSig.slice(0, fakeSig.length - 1) + "d";
 
       await expect(

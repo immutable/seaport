@@ -50,3 +50,7 @@ import {
 import {
     TestTransferValidationZoneOfferer
 } from "../../contracts/test/TestTransferValidationZoneOfferer.sol";
+import { ImmutableZone } from "../../contracts/zones/ImmutableZone.sol";
+import {
+    ImmutableZoneController
+} from "../../contracts/zones/ImmutableZoneController.sol";

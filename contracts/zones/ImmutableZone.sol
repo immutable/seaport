@@ -27,9 +27,9 @@ import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /**
  * @title  ImmutableZone
  * @author Immutable
- * @notice ImmutableZone is a custom zone implementation to perform signature checks
- *        and approve orders. It is based off of the PausableZone implementation in
- *        the official Seaport repository.
+ * @notice ImmutableZone is a custom zone implementation to perform signature
+ *        checks and approve orders. It is based off of the PausableZone
+ *        implementation in the official Seaport repository.
  */
 contract ImmutableZone is
     PausableZoneEventsAndErrors,
@@ -123,7 +123,7 @@ contract ImmutableZone is
     ) external override isController {
         // Ensure the operator being assigned is not the null address.
         if (operatorToAssign == address(0)) {
-            revert PauserCanNotBeSetAsZero();
+            revert OperatorCanNotBeSetAsZero();
         }
 
         // Set the given address as the new operator.
@@ -265,6 +265,6 @@ contract ImmutableZone is
         schemas[0].id = 3003;
         schemas[0].metadata = new bytes(0);
 
-        return ("PausableZone", schemas);
+        return ("ImmutableZone", schemas);
     }
 }

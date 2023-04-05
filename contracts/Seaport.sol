@@ -2,6 +2,20 @@
 pragma solidity 0.8.17;
 
 import { Consideration } from "./lib/Consideration.sol";
+import {
+    AdvancedOrder,
+    BasicOrderParameters,
+    CriteriaResolver,
+    Execution,
+    Fulfillment,
+    FulfillmentComponent,
+    Order,
+    OrderComponents
+} from "./lib/ConsiderationStructs.sol";
+import { BasicOrderType } from "./lib/ConsiderationEnums.sol";
+import {
+    AccessControl
+} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title Seaport
@@ -82,7 +96,11 @@ import { Consideration } from "./lib/Consideration.sol";
  *         spent (the "offer") along with an arbitrary number of items that must
  *         be received back by the indicated recipients (the "consideration").
  */
-contract Seaport is Consideration {
+contract Seaport is Consideration, AccessControl {
+    // Mapping to store valid ImmutableZones - this allows for multiple Zones
+    // to be active at the same time, and can be expired or added on demand.
+    mapping(address => bool) public immutableZones;
+
     /**
      * @notice Derive and set hashes, reference chainId, and associated domain
      *         separator during deployment.
@@ -91,7 +109,189 @@ contract Seaport is Consideration {
      *                          that may optionally be used to transfer approved
      *                          ERC20/721/1155 tokens.
      */
-    constructor(address conduitController) Consideration(conduitController) {}
+    constructor(address conduitController) Consideration(conduitController) {
+        // Set deployer account as default admin.
+        // You could change this to be defined by a constructor arg, but
+        // this also changes the Seaport constructor interface.
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    // Mark a zone address as active/valid
+    function addImmutableZone(
+        address zone
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        immutableZones[zone] = true;
+    }
+
+    // Mark a zone address as inactive/invalid
+    function removeImmutableZone(
+        address zone
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        immutableZones[zone] = false;
+    }
+
+    // Convenience function to set multiple zone validity at once
+    function setImmutableZones(
+        address[] calldata zones,
+        bool[] calldata valid
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            zones.length == valid.length,
+            "ImmutableSeaport: zones and valid must be the same length"
+        );
+        for (uint256 i = 0; i < zones.length; ) {
+            immutableZones[zones[i]] = valid[i];
+            unchecked {
+                i += 1;
+            }
+        }
+    }
+
+    // Override all external settlement functions and add checks on the
+    // order type and zone.
+
+    function fulfillBasicOrder(
+        BasicOrderParameters calldata parameters
+    ) public payable override returns (bool fulfilled) {
+        // Check order type is restricted, see BasicOrderType enum.
+        require(
+            uint(parameters.basicOrderType) % 4 == 2 ||
+                uint(parameters.basicOrderType) % 4 == 3,
+            "ImmutableSeaport: order type must be restricted"
+        );
+        // Check that the zone is set to a valid ImmutableZone.
+        require(
+            immutableZones[parameters.zone],
+            "ImmutableSeaport: order zone must be a valid ImmutableZone"
+        );
+        return super.fulfillBasicOrder(parameters);
+    }
+
+    function fulfillBasicOrder_efficient_6GL6yc(
+        BasicOrderParameters calldata parameters
+    ) public payable override returns (bool fulfilled) {
+        // Check order type is restricted, see BasicOrderType enum.
+        require(
+            uint(parameters.basicOrderType) % 4 == 2 ||
+                uint(parameters.basicOrderType) % 4 == 3,
+            "ImmutableSeaport: order type must be restricted"
+        );
+        // Check that the zone is set to a valid ImmutableZone.
+        require(
+            immutableZones[parameters.zone],
+            "ImmutableSeaport: order zone must be a valid ImmutableZone"
+        );
+        return super.fulfillBasicOrder(parameters);
+    }
+
+    function fulfillOrder(
+        Order calldata order,
+        bytes32 fulfillerConduitKey
+    ) public payable override returns (bool fulfilled) {
+        // Check order type is restricted, see BasicOrderType enum.
+        require(
+            uint(order.parameters.orderType) == 2 ||
+                uint(order.parameters.orderType) == 3,
+            "ImmutableSeaport: order type must be restricted"
+        );
+        // Check that the zone is set to a valid ImmutableZone.
+        require(
+            immutableZones[order.parameters.zone],
+            "ImmutableSeaport: order zone must be a valid ImmutableZone"
+        );
+        return super.fulfillOrder(order, fulfillerConduitKey);
+    }
+
+    function fulfillAdvancedOrder(
+        AdvancedOrder calldata advancedOrder,
+        CriteriaResolver[] calldata criteriaResolvers,
+        bytes32 fulfillerConduitKey,
+        address recipient
+    ) public payable override returns (bool fulfilled) {
+        return
+            super.fulfillAdvancedOrder(
+                advancedOrder,
+                criteriaResolvers,
+                fulfillerConduitKey,
+                recipient
+            );
+    }
+
+    function fulfillAvailableOrders(
+        Order[] calldata orders,
+        FulfillmentComponent[][] calldata offerFulfillments,
+        FulfillmentComponent[][] calldata considerationFulfillments,
+        bytes32 fulfillerConduitKey,
+        uint256 maximumFulfilled
+    )
+        public
+        payable
+        override
+        returns (
+            bool[] memory /* availableOrders */,
+            Execution[] memory /* executions */
+        )
+    {
+        return
+            super.fulfillAvailableOrders(
+                orders,
+                offerFulfillments,
+                considerationFulfillments,
+                fulfillerConduitKey,
+                maximumFulfilled
+            );
+    }
+
+    function fulfillAvailableAdvancedOrders(
+        AdvancedOrder[] calldata advancedOrders,
+        CriteriaResolver[] calldata criteriaResolvers,
+        FulfillmentComponent[][] calldata offerFulfillments,
+        FulfillmentComponent[][] calldata considerationFulfillments,
+        bytes32 fulfillerConduitKey,
+        address recipient,
+        uint256 maximumFulfilled
+    )
+        public
+        payable
+        override
+        returns (
+            bool[] memory /* availableOrders */,
+            Execution[] memory /* executions */
+        )
+    {
+        return
+            super.fulfillAvailableAdvancedOrders(
+                advancedOrders,
+                criteriaResolvers,
+                offerFulfillments,
+                considerationFulfillments,
+                fulfillerConduitKey,
+                recipient,
+                maximumFulfilled
+            );
+    }
+
+    function matchOrders(
+        Order[] calldata orders,
+        Fulfillment[] calldata fulfillments
+    ) public payable override returns (Execution[] memory /* executions */) {
+        return super.matchOrders(orders, fulfillments);
+    }
+
+    function matchAdvancedOrders(
+        AdvancedOrder[] calldata advancedOrders,
+        CriteriaResolver[] calldata criteriaResolvers,
+        Fulfillment[] calldata fulfillments,
+        address recipient
+    ) public payable override returns (Execution[] memory /* executions */) {
+        return
+            super.matchAdvancedOrders(
+                advancedOrders,
+                criteriaResolvers,
+                fulfillments,
+                recipient
+            );
+    }
 
     /**
      * @dev Internal pure function to retrieve and return the name of this
@@ -116,6 +316,8 @@ contract Seaport is Consideration {
      */
     function _nameString() internal pure override returns (string memory) {
         // Return the name of the contract.
-        return "Seaport";
+        // Changing the name of this contract will change the domain separator
+        // used when signing orders.
+        return "ImmutableSeaport";
     }
 }

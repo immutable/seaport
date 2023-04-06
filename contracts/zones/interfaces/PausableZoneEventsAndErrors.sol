@@ -104,6 +104,13 @@ interface PausableZoneEventsAndErrors {
     error PauserCanNotBeSetAsZero();
 
     /**
+     * @dev Revert with an error when attempting to set the new potential operator
+     *      as the 0 address.
+     *
+     */
+    error OperatorCanNotBeSetAsZero();
+
+    /**
      * @dev Revert with an error when the caller does not have
      *      the potentialOwner role.
      */

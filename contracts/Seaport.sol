@@ -13,9 +13,7 @@ import {
     OrderComponents
 } from "./lib/ConsiderationStructs.sol";
 import { BasicOrderType } from "./lib/ConsiderationEnums.sol";
-import {
-    AccessControl
-} from "@openzeppelin/contracts/access/AccessControl.sol";
+
 
 /**
  * @title Seaport
@@ -96,10 +94,10 @@ import {
  *         spent (the "offer") along with an arbitrary number of items that must
  *         be received back by the indicated recipients (the "consideration").
  */
-contract Seaport is Consideration, AccessControl {
+contract Seaport is Consideration {
     // Mapping to store valid ImmutableZones - this allows for multiple Zones
     // to be active at the same time, and can be expired or added on demand.
-    mapping(address => bool) public immutableZones;
+    address public constant immutableZones = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     /**
      * @notice Derive and set hashes, reference chainId, and associated domain
@@ -113,39 +111,8 @@ contract Seaport is Consideration, AccessControl {
         // Set deployer account as default admin.
         // You could change this to be defined by a constructor arg, but
         // this also changes the Seaport constructor interface.
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    // Mark a zone address as active/valid
-    function addImmutableZone(
-        address zone
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        immutableZones[zone] = true;
-    }
-
-    // Mark a zone address as inactive/invalid
-    function removeImmutableZone(
-        address zone
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        immutableZones[zone] = false;
-    }
-
-    // Convenience function to set multiple zone validity at once
-    function setImmutableZones(
-        address[] calldata zones,
-        bool[] calldata valid
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            zones.length == valid.length,
-            "ImmutableSeaport: zones and valid must be the same length"
-        );
-        for (uint256 i = 0; i < zones.length; ) {
-            immutableZones[zones[i]] = valid[i];
-            unchecked {
-                i += 1;
-            }
-        }
-    }
 
     // Override all external settlement functions and add checks on the
     // order type and zone.
@@ -161,7 +128,7 @@ contract Seaport is Consideration, AccessControl {
         );
         // Check that the zone is set to a valid ImmutableZone.
         require(
-            immutableZones[parameters.zone],
+            parameters.zone == immutableZones,
             "ImmutableSeaport: order zone must be a valid ImmutableZone"
         );
         return super.fulfillBasicOrder(parameters);
@@ -178,7 +145,7 @@ contract Seaport is Consideration, AccessControl {
         );
         // Check that the zone is set to a valid ImmutableZone.
         require(
-            immutableZones[parameters.zone],
+            parameters.zone == immutableZones,
             "ImmutableSeaport: order zone must be a valid ImmutableZone"
         );
         return super.fulfillBasicOrder(parameters);
@@ -196,7 +163,7 @@ contract Seaport is Consideration, AccessControl {
         );
         // Check that the zone is set to a valid ImmutableZone.
         require(
-            immutableZones[order.parameters.zone],
+            order.parameters.zone == immutableZones,
             "ImmutableSeaport: order zone must be a valid ImmutableZone"
         );
         return super.fulfillOrder(order, fulfillerConduitKey);

@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {
-    ConduitInterface
-} from "seaport-types/src/interfaces/ConduitInterface.sol";
+import { ConduitInterface } from "../interfaces/ConduitInterface.sol";
 
 import {
     ConduitBatch1155Transfer,
     ConduitTransfer
-} from "seaport-types/src/conduit/lib/ConduitStructs.sol";
+} from "../conduit/lib/ConduitStructs.sol";
 
 contract ConduitMockRevertNoReason is ConduitInterface {
     constructor() {}

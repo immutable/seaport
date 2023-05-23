@@ -4,13 +4,13 @@ pragma solidity ^0.8.17;
 import {
     ZoneParameters,
     Schema
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../../contracts/lib/ConsiderationStructs.sol";
 
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import {
+    ZoneInterface
+} from "../../../../contracts/interfaces/ZoneInterface.sol";
 
-import { ZoneInterface } from "seaport-types/src/interfaces/ZoneInterface.sol";
-
-contract BadZone is ERC165, ZoneInterface {
+contract BadZone is ZoneInterface {
     function validateOrder(
         ZoneParameters calldata zoneParameters
     ) external pure returns (bytes4 validOrderMagicValue) {
@@ -40,13 +40,5 @@ contract BadZone is ERC165, ZoneInterface {
         schemas[0].metadata = new bytes(0);
 
         return ("BadZone", schemas);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC165, ZoneInterface) returns (bool) {
-        return
-            interfaceId == type(ZoneInterface).interfaceId ||
-            super.supportsInterface(interfaceId);
     }
 }

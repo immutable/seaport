@@ -5,7 +5,7 @@ import {
     ConsiderationItem,
     OfferItem,
     OrderParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../contracts/lib/ConsiderationStructs.sol";
 
 import { ReferenceConsiderationBase } from "./ReferenceConsiderationBase.sol";
 

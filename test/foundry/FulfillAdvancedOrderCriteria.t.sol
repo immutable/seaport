@@ -8,16 +8,16 @@ import { Merkle } from "murky/Merkle.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../contracts/interfaces/ConsiderationInterface.sol";
 
 import {
     CriteriaResolver,
     OfferItem,
     OrderComponents,
     AdvancedOrder
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../contracts/lib/ConsiderationStructs.sol";
 
-import { ItemType, Side } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType, Side } from "../../contracts/lib/ConsiderationEnums.sol";
 
 contract FulfillAdvancedOrderCriteria is BaseOrderTest {
     Merkle merkle = new Merkle();

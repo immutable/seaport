@@ -8,11 +8,11 @@ import { StatefulRatifierOfferer } from "./impl/StatefulRatifierOfferer.sol";
 import {
     ERC20Interface,
     ERC721Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "../../../contracts/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../../contracts/interfaces/ConsiderationInterface.sol";
 
 import {
     OfferItem,
@@ -21,9 +21,9 @@ import {
     CriteriaResolver,
     OrderComponents,
     FulfillmentComponent
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../contracts/lib/ConsiderationStructs.sol";
 
-import { OrderType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { OrderType } from "../../../contracts/lib/ConsiderationEnums.sol";
 
 contract StatefulOffererTest is BaseOrderTest {
     StatefulRatifierOfferer offerer;

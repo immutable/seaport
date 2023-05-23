@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {
-    ZoneParameters,
-    Schema
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
-
-import { IERC165 } from "seaport-types/src/interfaces/IERC165.sol";
+import { ZoneParameters, Schema } from "../lib/ConsiderationStructs.sol";
 
 /**
  * @title  ZoneInterface
  * @notice Contains functions exposed by a zone.
  */
-interface ZoneInterface is IERC165 {
+interface ZoneInterface {
     /**
      * @dev Validates an order.
      *
@@ -39,8 +34,4 @@ interface ZoneInterface is IERC165 {
             string memory name,
             Schema[] memory schemas // map to Seaport Improvement Proposal IDs
         );
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) external view override returns (bool);
 }

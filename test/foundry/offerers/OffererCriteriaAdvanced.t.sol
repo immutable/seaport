@@ -10,32 +10,32 @@ import { Merkle } from "murky/Merkle.sol";
 import {
     ERC20Interface,
     ERC721Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "../../../contracts/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../../contracts/interfaces/ConsiderationInterface.sol";
 
 import {
     OrderType,
     ItemType,
     Side
-} from "seaport-types/src/lib/ConsiderationEnums.sol";
+} from "../../../contracts/lib/ConsiderationEnums.sol";
 
 import {
     ConsiderationItem,
     OfferItem,
     AdvancedOrder,
     CriteriaResolver
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../contracts/lib/ConsiderationStructs.sol";
 
 import {
     ConsiderationEventsAndErrors
-} from "seaport-types/src/interfaces/ConsiderationEventsAndErrors.sol";
+} from "../../../contracts/interfaces/ConsiderationEventsAndErrors.sol";
 
 import {
     ZoneInteractionErrors
-} from "seaport-types/src/interfaces/ZoneInteractionErrors.sol";
+} from "../../../contracts/interfaces/ZoneInteractionErrors.sol";
 
 contract OffererCriteriaAdvancedTest is
     BaseOrderTest,

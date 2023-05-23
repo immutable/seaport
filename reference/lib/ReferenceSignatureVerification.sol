@@ -3,15 +3,15 @@ pragma solidity ^0.8.13;
 
 import {
     EIP1271Interface
-} from "seaport-types/src/interfaces/EIP1271Interface.sol";
+} from "../../contracts/interfaces/EIP1271Interface.sol";
 
 import {
     SignatureVerificationErrors
-} from "seaport-types/src/interfaces/SignatureVerificationErrors.sol";
+} from "../../contracts/interfaces/SignatureVerificationErrors.sol";
 
 import {
     EIP2098_allButHighestBitMask
-} from "seaport-types/src/lib/ConsiderationConstants.sol";
+} from "../../contracts/lib/ConsiderationConstants.sol";
 
 /**
  * @title SignatureVerification

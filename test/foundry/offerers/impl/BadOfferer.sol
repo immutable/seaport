@@ -4,27 +4,25 @@ pragma solidity ^0.8.13;
 import {
     ERC20Interface,
     ERC721Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "../../../../contracts/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
+} from "../../../../contracts/interfaces/ContractOffererInterface.sol";
 
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "../../../../contracts/lib/ConsiderationEnums.sol";
 
 import {
     ReceivedItem,
     Schema,
     SpentItem
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../../contracts/lib/ConsiderationStructs.sol";
 
 interface ERC20Mintable {
     function mint(address to, uint256 amount) external;
 }
 
-contract BadOfferer is ERC165, ContractOffererInterface {
+contract BadOfferer is ContractOffererInterface {
     error IntentionalRevert();
 
     ERC20Interface token1;
@@ -124,20 +122,6 @@ contract BadOfferer is ERC165, ContractOffererInterface {
         uint256 /* contractNonce */
     ) external pure override returns (bytes4 /* ratifyOrderMagicValue */) {
         return BadOfferer.ratifyOrder.selector;
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(ERC165, ContractOffererInterface)
-        returns (bool)
-    {
-        return
-            interfaceId == type(ContractOffererInterface).interfaceId ||
-            super.supportsInterface(interfaceId);
     }
 
     /**

@@ -3,9 +3,9 @@ pragma solidity ^0.8.13;
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../contracts/interfaces/ConsiderationInterface.sol";
 
-import { OrderType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { OrderType } from "../contracts/lib/ConsiderationEnums.sol";
 
 import {
     AdvancedOrder,
@@ -17,7 +17,7 @@ import {
     Order,
     OrderComponents,
     OrderParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../contracts/lib/ConsiderationStructs.sol";
 
 import { ReferenceOrderCombiner } from "./lib/ReferenceOrderCombiner.sol";
 
@@ -28,7 +28,7 @@ import { OrderToExecute } from "./lib/ReferenceConsiderationStructs.sol";
  * @author 0age
  * @custom:coauthor d1ll0n
  * @custom:coauthor transmissions11
- * @custom:version 1.5-reference
+ * @custom:version 1.4-reference
  * @notice Consideration is a generalized native token/ERC20/ERC721/ERC1155
  *         marketplace. It minimizes external calls to the greatest extent
  *         possible and provides lightweight methods for common routes as well

@@ -4,18 +4,18 @@ pragma solidity ^0.8.17;
 import {
     OrderType,
     BasicOrderType
-} from "seaport-types/src/lib/ConsiderationEnums.sol";
+} from "../../contracts/lib/ConsiderationEnums.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../contracts/interfaces/ConsiderationInterface.sol";
 
 import {
     AdditionalRecipient,
     Order,
     OrderComponents,
     BasicOrderParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../contracts/lib/ConsiderationStructs.sol";
 
 import { BaseOrderTest } from "./utils/BaseOrderTest.sol";
 
@@ -33,7 +33,7 @@ import { ArithmeticUtil } from "./utils/ArithmeticUtil.sol";
 
 import {
     ConsiderationEventsAndErrors
-} from "seaport-types/src/interfaces/ConsiderationEventsAndErrors.sol";
+} from "../../contracts/interfaces/ConsiderationEventsAndErrors.sol";
 
 contract FulfillBasicOrderTest is BaseOrderTest, ConsiderationEventsAndErrors {
     using ArithmeticUtil for uint128;
@@ -741,7 +741,7 @@ contract FulfillBasicOrderTest is BaseOrderTest, ConsiderationEventsAndErrors {
 
         vm.prank(alice);
 
-        vm.expectEmit(false, true, true, false, address(context.consideration));
+        vm.expectEmit(true, true, true, false, address(context.consideration));
         emit OrderCancelled(orderHash, alice, context.args.zone);
         context.consideration.cancel(myBaseOrderComponents);
 

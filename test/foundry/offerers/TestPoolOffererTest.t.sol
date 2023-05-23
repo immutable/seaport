@@ -14,9 +14,9 @@ import {
     CriteriaResolver,
     OfferItem,
     OrderType
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../contracts/lib/ConsiderationStructs.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "../../../contracts/lib/ConsiderationEnums.sol";
 
 contract TestPoolOffererTest is BaseOrderTest {
     TestPoolFactory factory;

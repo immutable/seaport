@@ -4,21 +4,19 @@ pragma solidity ^0.8.13;
 import {
     ERC20Interface,
     ERC721Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "../../../../contracts/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
-
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+} from "../../../../contracts/interfaces/ContractOffererInterface.sol";
 
 import {
     SpentItem,
     ReceivedItem,
     Schema
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../../contracts/lib/ConsiderationStructs.sol";
 
-contract PassthroughOfferer is ERC165, ContractOffererInterface {
+contract PassthroughOfferer is ContractOffererInterface {
     constructor(
         address[] memory seaports,
         ERC20Interface _token1,
@@ -101,20 +99,6 @@ contract PassthroughOfferer is ERC165, ContractOffererInterface {
         uint256 /* contractNonce */
     ) external pure override returns (bytes4 /* ratifyOrderMagicValue */) {
         return PassthroughOfferer.ratifyOrder.selector;
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(ERC165, ContractOffererInterface)
-        returns (bool)
-    {
-        return
-            interfaceId == type(ContractOffererInterface).interfaceId ||
-            super.supportsInterface(interfaceId);
     }
 
     /**

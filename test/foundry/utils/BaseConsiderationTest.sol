@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { ConduitController } from "seaport-core/src/conduit/ConduitController.sol";
+import {
+    ConduitController
+} from "../../../contracts/conduit/ConduitController.sol";
 
 import {
     ReferenceConduitController
@@ -9,26 +11,28 @@ import {
 
 import {
     ConduitControllerInterface
-} from "seaport-types/src/interfaces/ConduitControllerInterface.sol";
+} from "../../../contracts/interfaces/ConduitControllerInterface.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../../contracts/interfaces/ConsiderationInterface.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "../../../contracts/lib/ConsiderationEnums.sol";
 
 import {
     OfferItem,
     ConsiderationItem
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../contracts/lib/ConsiderationStructs.sol";
 
 import { DifferentialTest } from "./DifferentialTest.sol";
 
 import { StructCopier } from "./StructCopier.sol";
 
-import { Conduit } from "seaport-core/src/conduit/Conduit.sol";
+import { stdStorage, StdStorage } from "forge-std/Test.sol";
 
-import { Consideration } from "seaport-core/src/lib/Consideration.sol";
+import { Conduit } from "../../../contracts/conduit/Conduit.sol";
+
+import { Consideration } from "../../../contracts/lib/Consideration.sol";
 
 import {
     ReferenceConsideration
@@ -36,6 +40,8 @@ import {
 
 /// @dev Base test case that deploys Consideration and its dependencies
 contract BaseConsiderationTest is DifferentialTest, StructCopier {
+    using stdStorage for StdStorage;
+
     ConsiderationInterface consideration;
     ConsiderationInterface referenceConsideration;
     bytes32 conduitKeyOne;

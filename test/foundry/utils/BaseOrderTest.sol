@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import { stdStorage, StdStorage } from "forge-std/Test.sol";
+
 import {
-    FulfillAvailableHelper,
-    MatchFulfillmentHelper
-} from "seaport-sol/SeaportSol.sol";
+    ConsiderationInterface
+} from "../../../contracts/interfaces/ConsiderationInterface.sol";
+
+import { OrderType } from "../../../contracts/lib/ConsiderationEnums.sol";
+
+import {
+    BasicOrder_additionalRecipients_data_cdPtr,
+    TwoWords
+} from "../../../contracts/lib/ConsiderationConstants.sol";
 
 import {
     AdditionalRecipient,
@@ -13,30 +21,28 @@ import {
     Order,
     OrderComponents,
     OrderParameters
-} from "seaport-sol/SeaportStructs.sol";
-
-import {
-    ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
-
-import { OrderType } from "seaport-types/src/lib/ConsiderationEnums.sol";
-
-import {
-    BasicOrder_additionalRecipients_data_cdPtr,
-    TwoWords
-} from "seaport-types/src/lib/ConsiderationConstants.sol";
+} from "../../../contracts/lib/ConsiderationStructs.sol";
 
 import { ArithmeticUtil } from "./ArithmeticUtil.sol";
 
 import { OrderBuilder } from "./OrderBuilder.sol";
 
-import { AmountDeriver } from "seaport-core/src/lib/AmountDeriver.sol";
+import { AmountDeriver } from "../../../contracts/lib/AmountDeriver.sol";
 
 /// @dev base test class for cases that depend on pre-deployed token contracts
 contract BaseOrderTest is OrderBuilder, AmountDeriver {
+    using stdStorage for StdStorage;
     using ArithmeticUtil for uint256;
     using ArithmeticUtil for uint128;
     using ArithmeticUtil for uint120;
+
+    /**
+     * @dev used to store address and key outputs from makeAddrAndKey(name)
+     */
+    struct Account {
+        address addr;
+        uint256 key;
+    }
 
     FulfillmentComponent firstOrderFirstItem;
     FulfillmentComponent firstOrderSecondItem;
@@ -55,9 +61,6 @@ contract BaseOrderTest is OrderBuilder, AmountDeriver {
 
     Account offerer1;
     Account offerer2;
-
-    FulfillAvailableHelper fulfill;
-    MatchFulfillmentHelper matcher;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -80,6 +83,14 @@ contract BaseOrderTest is OrderBuilder, AmountDeriver {
             vm.deal(address(this), uint128(MAX_INT));
         }
         _;
+    }
+
+    /**
+     * @dev convenience wrapper for makeAddrAndKey
+     */
+    function makeAccount(string memory name) internal returns (Account memory) {
+        (address addr, uint256 key) = makeAddrAndKey(name);
+        return Account(addr, key);
     }
 
     /**
@@ -117,9 +128,6 @@ contract BaseOrderTest is OrderBuilder, AmountDeriver {
 
         offerer1 = makeAndAllocateAccount("offerer1");
         offerer2 = makeAndAllocateAccount("offerer2");
-
-        fulfill = new FulfillAvailableHelper();
-        matcher = new MatchFulfillmentHelper();
     }
 
     function resetOfferComponents() internal {

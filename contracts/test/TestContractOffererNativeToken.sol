@@ -4,25 +4,24 @@ pragma solidity ^0.8.13;
 import {
     ERC721Interface,
     ERC1155Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "../interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
+} from "../interfaces/ContractOffererInterface.sol";
 
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "../lib/ConsiderationEnums.sol";
 
 import {
     ReceivedItem,
     Schema,
     SpentItem
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../lib/ConsiderationStructs.sol";
 
 /**
  * @title TestContractOffererNativeToken
  */
-contract TestContractOffererNativeToken is ContractOffererInterface, ERC165 {
+contract TestContractOffererNativeToken is ContractOffererInterface {
     error OrderUnavailable();
 
     address private immutable _SEAPORT;
@@ -245,20 +244,6 @@ contract TestContractOffererNativeToken is ContractOffererInterface, ERC165 {
         bytes calldata
     ) external pure returns (bytes4) {
         return bytes4(0xf23a6e61);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(ERC165, ContractOffererInterface)
-        returns (bool)
-    {
-        return
-            interfaceId == type(ContractOffererInterface).interfaceId ||
-            super.supportsInterface(interfaceId);
     }
 
     /**

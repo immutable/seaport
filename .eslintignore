@@ -6,4 +6,3 @@ constants
 coverage
 lib/murky
 lib/openzeppelin-contracts
-order-validator/test

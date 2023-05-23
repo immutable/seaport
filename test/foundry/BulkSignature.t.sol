@@ -7,7 +7,7 @@ import { EIP712MerkleTree } from "./utils/EIP712MerkleTree.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../contracts/interfaces/ConsiderationInterface.sol";
 
 import {
     ConsiderationItem,
@@ -16,9 +16,9 @@ import {
     OrderComponents,
     OrderParameters,
     OrderType
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../contracts/lib/ConsiderationStructs.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "../../contracts/lib/ConsiderationEnums.sol";
 
 contract BulkSignatureTest is BaseOrderTest {
     OrderComponents private _empty;
@@ -115,6 +115,8 @@ contract BulkSignatureTest is BaseOrderTest {
             signature: bulkSignature
         });
         context.seaport.fulfillOrder{ value: 1 }(order, bytes32(0));
+
+        // merkleTree.
     }
 
     function testBulkSignatureSparse() public {
@@ -173,6 +175,9 @@ contract BulkSignatureTest is BaseOrderTest {
         );
         configureOrderParameters(addr);
         configureOrderComponents(context.seaport);
+        OrderComponents[] memory orderComponents = new OrderComponents[](3);
+        orderComponents[0] = baseOrderComponents;
+        // The other order components can remain empty.
 
         EIP712MerkleTree merkleTree = new EIP712MerkleTree();
         bytes memory bulkSignature = merkleTree.signSparseBulkOrder(

@@ -7,7 +7,7 @@ import { TestZone } from "./impl/TestZone.sol";
 
 import {
     TestTransferValidationZoneOfferer
-} from "seaport/test/TestTransferValidationZoneOfferer.sol";
+} from "../../../contracts/test/TestTransferValidationZoneOfferer.sol";
 
 import {
     PostFulfillmentStatefulTestZone
@@ -22,17 +22,17 @@ import {
     FulfillmentComponent,
     ItemType,
     OfferItem
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "../../../contracts/lib/ConsiderationStructs.sol";
 
 import {
     BasicOrderType,
     OrderType,
     Side
-} from "seaport-types/src/lib/ConsiderationEnums.sol";
+} from "../../../contracts/lib/ConsiderationEnums.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "../../../contracts/interfaces/ConsiderationInterface.sol";
 
 contract PostFulfillmentCheckTest is BaseOrderTest {
     TestZone zone = new TestZone();

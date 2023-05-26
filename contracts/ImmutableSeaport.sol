@@ -2,6 +2,20 @@
 pragma solidity 0.8.17;
 
 import { Consideration } from "./lib/Consideration.sol";
+import {
+    AdvancedOrder,
+    BasicOrderParameters,
+    CriteriaResolver,
+    Execution,
+    Fulfillment,
+    FulfillmentComponent,
+    Order,
+    OrderComponents
+} from "./lib/ConsiderationStructs.sol";
+import { BasicOrderType, OrderType } from "./lib/ConsiderationEnums.sol";
+import {
+    Ownable
+} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title Seaport
@@ -82,7 +96,14 @@ import { Consideration } from "./lib/Consideration.sol";
  *         spent (the "offer") along with an arbitrary number of items that must
  *         be received back by the indicated recipients (the "consideration").
  */
-contract Seaport is Consideration {
+contract ImmutableSeaport is Consideration, Ownable {
+    // Mapping to store valid ImmutableZones - this allows for multiple Zones
+    // to be active at the same time, and can be expired or added on demand.
+    mapping(address => bool) public immutableZones;
+
+    error OrderNotRestricted();
+    error InvalidZone(address zone);
+    error FunctionDisabled();
     /**
      * @notice Derive and set hashes, reference chainId, and associated domain
      *         separator during deployment.
@@ -91,7 +112,37 @@ contract Seaport is Consideration {
      *                          that may optionally be used to transfer approved
      *                          ERC20/721/1155 tokens.
      */
-    constructor(address conduitController) Consideration(conduitController) {}
+    constructor(address conduitController) Consideration(conduitController) Ownable() {}
+
+    // Mark a zone address as active/valid
+    function addImmutableZone(
+        address zone
+    ) external onlyOwner() {
+        immutableZones[zone] = true;
+    }
+
+    // Mark a zone address as inactive/invalid
+    function removeImmutableZone(
+        address zone
+    ) external onlyOwner() {
+        immutableZones[zone] = false;
+    }
+
+
+    // Convenience function to set multiple zone validity at once
+    function setImmutableZones(
+        address[] calldata zones,
+        bool[] calldata valid
+    ) external onlyOwner() {
+        require(
+            zones.length == valid.length,
+            "ImmutableSeaport: zones and valid must be the same length"
+        );
+        for (uint256 i = 0; i < zones.length; i++) {
+            immutableZones[zones[i]] = valid[i];
+        }
+    }
+
 
     /**
      * @dev Internal pure function to retrieve and return the name of this
@@ -101,11 +152,7 @@ contract Seaport is Consideration {
      */
     function _name() internal pure override returns (string memory) {
         // Return the name of the contract.
-        assembly {
-            mstore(0x20, 0x20)
-            mstore(0x47, 0x07536561706f7274)
-            return(0x20, 0x60)
-        }
+        return "ImmutableSeaport";
     }
 
     /**
@@ -116,6 +163,101 @@ contract Seaport is Consideration {
      */
     function _nameString() internal pure override returns (string memory) {
         // Return the name of the contract.
-        return "Seaport";
+        return "ImmutableSeaport";
+    }
+
+    function fulfillAdvancedOrder(
+        AdvancedOrder calldata advancedOrder,
+        CriteriaResolver[] calldata criteriaResolvers,
+        bytes32 fulfillerConduitKey,
+        address recipient
+    ) public payable override returns (bool fulfilled) {
+        if (advancedOrder.parameters.orderType != OrderType.FULL_RESTRICTED && advancedOrder.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+            revert OrderNotRestricted();
+        }
+        if (!immutableZones[advancedOrder.parameters.zone]) {
+            revert InvalidZone(advancedOrder.parameters.zone);
+        }
+        return super.fulfillAdvancedOrder(
+                advancedOrder,
+                criteriaResolvers,
+                fulfillerConduitKey,
+                recipient
+            );
+    }
+
+    function fulfillBasicOrder(
+        BasicOrderParameters calldata parameters
+    ) public payable override returns (bool fulfilled) {
+        revert FunctionDisabled();
+    }
+
+    function fulfillBasicOrder_efficient_6GL6yc(
+        BasicOrderParameters calldata parameters
+    ) public payable override returns (bool fulfilled) {
+        revert FunctionDisabled();
+    }
+
+    function fulfillOrder(
+        Order calldata,
+        bytes32 fulfillerConduitKey
+    ) public payable override returns (bool fulfilled) {
+        revert FunctionDisabled();
+    }
+
+    function fulfillAvailableOrders(
+        Order[] calldata,
+        FulfillmentComponent[][] calldata,
+        FulfillmentComponent[][] calldata,
+        bytes32 fulfillerConduitKey,
+        uint256 maximumFulfilled
+    )
+        public
+        payable
+        override
+        virtual
+        returns (
+            bool[] memory /* availableOrders */,
+            Execution[] memory /* executions */
+        )
+    {
+        revert FunctionDisabled();
+    }
+
+    function fulfillAvailableAdvancedOrders(
+        AdvancedOrder[] calldata,
+        CriteriaResolver[] calldata,
+        FulfillmentComponent[][] calldata,
+        FulfillmentComponent[][] calldata,
+        bytes32 fulfillerConduitKey,
+        address recipient,
+        uint256 maximumFulfilled
+    )
+        public
+        payable
+        override
+        virtual
+        returns (
+            bool[] memory /* availableOrders */,
+            Execution[] memory /* executions */
+        )
+    {
+        revert FunctionDisabled();
+    }
+
+    function matchOrders(
+        Order[] calldata,
+        Fulfillment[] calldata
+    ) public payable override virtual returns (Execution[] memory /* executions */) {
+        revert FunctionDisabled();
+    }
+
+    function matchAdvancedOrders(
+        AdvancedOrder[] calldata,
+        CriteriaResolver[] calldata,
+        Fulfillment[] calldata,
+        address recipient
+    ) public payable override virtual returns (Execution[] memory /* executions */) {
+        revert FunctionDisabled();
     }
 }

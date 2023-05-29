@@ -128,22 +128,6 @@ contract ImmutableSeaport is Consideration, Ownable {
         immutableZones[zone] = false;
     }
 
-
-    // Convenience function to set multiple zone validity at once
-    function setImmutableZones(
-        address[] calldata zones,
-        bool[] calldata valid
-    ) external onlyOwner() {
-        require(
-            zones.length == valid.length,
-            "ImmutableSeaport: zones and valid must be the same length"
-        );
-        for (uint256 i = 0; i < zones.length; i++) {
-            immutableZones[zones[i]] = valid[i];
-        }
-    }
-
-
     /**
      * @dev Internal pure function to retrieve and return the name of this
      *      contract.
@@ -152,7 +136,11 @@ contract ImmutableSeaport is Consideration, Ownable {
      */
     function _name() internal pure override returns (string memory) {
         // Return the name of the contract.
-        return "ImmutableSeaport";
+        assembly {
+            mstore(0x20, 0x20)
+            mstore(0x47, 0x07536561706f7274)
+            return(0x20, 0x60)
+        }
     }
 
     /**
@@ -163,7 +151,7 @@ contract ImmutableSeaport is Consideration, Ownable {
      */
     function _nameString() internal pure override returns (string memory) {
         // Return the name of the contract.
-        return "ImmutableSeaport";
+        return "Seaport";
     }
 
     function fulfillAdvancedOrder(
@@ -172,12 +160,12 @@ contract ImmutableSeaport is Consideration, Ownable {
         bytes32 fulfillerConduitKey,
         address recipient
     ) public payable override returns (bool fulfilled) {
-        if (advancedOrder.parameters.orderType != OrderType.FULL_RESTRICTED && advancedOrder.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
-            revert OrderNotRestricted();
-        }
-        if (!immutableZones[advancedOrder.parameters.zone]) {
-            revert InvalidZone(advancedOrder.parameters.zone);
-        }
+        // if (advancedOrder.parameters.orderType != OrderType.FULL_RESTRICTED && advancedOrder.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+        //     revert OrderNotRestricted();
+        // }
+        // if (!immutableZones[advancedOrder.parameters.zone]) {
+        //     revert InvalidZone(advancedOrder.parameters.zone);
+        // }
         return super.fulfillAdvancedOrder(
                 advancedOrder,
                 criteriaResolvers,

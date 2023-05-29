@@ -7,6 +7,7 @@ import { toBN } from "../encoding";
 
 import { conduitFixture } from "./conduit";
 import { create2FactoryFixture } from "./create2";
+import { immutableSeaportFixture } from "./immutableSeaport";
 import { marketplaceFixture } from "./marketplace";
 import { tokensFixture } from "./tokens";
 
@@ -70,6 +71,14 @@ export const seaportFixture = async (owner: Wallet) => {
     tokenByType,
     createTransferWithApproval,
   } = await tokensFixture(owner as any);
+
+  const { immutableSeaport } = await immutableSeaportFixture(
+    create2Factory,
+    conduitController,
+    conduitOne,
+    chainId,
+    owner
+  );
 
   const {
     marketplaceContract,
@@ -912,6 +921,7 @@ export const seaportFixture = async (owner: Wallet) => {
     withBalanceChecks,
     checkTransferEvent,
     checkExpectedEvents,
+    immutableSeaport,
   };
 };
 

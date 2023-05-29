@@ -30,11 +30,13 @@ import type { Contract, Wallet } from "ethers";
 
 const { parseEther } = ethers.utils;
 
-describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
+describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function () {
   const { provider } = ethers;
   const owner = new ethers.Wallet(randomHex(32), provider);
   const immutableSigner = new ethers.Wallet(randomHex(32), provider);
 
+  // let marketplaceContract: ConsiderationInterface;
+  let immutableSeaport: ConsiderationInterface;
   let marketplaceContract: ConsiderationInterface;
   let stubZone: TestZone;
   let testERC721: TestERC721;
@@ -63,11 +65,12 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       createOrder,
       getTestItem721,
       getTestItem721WithCriteria,
-      marketplaceContract,
       mintAndApprove721,
+      marketplaceContract,
       stubZone,
       testERC721,
       withBalanceChecks,
+      immutableSeaport,
     } = await seaportFixture(owner));
   });
 
@@ -79,7 +82,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
     const seller = new ethers.Wallet(randomHex(32), provider);
     const buyer = new ethers.Wallet(randomHex(32), provider);
 
-    for (const wallet of [seller, buyer]) {
+    for (const wallet of [seller, buyer, owner]) {
       await faucet(wallet.address, provider);
     }
 
@@ -98,7 +101,12 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       .connect(owner)
       .assignOperator(immutableZone.address, immutableSigner.address);
 
-    return { seller, buyer, immutableZoneController, immutableZone };
+    return {
+      seller,
+      buyer,
+      immutableZoneController,
+      immutableZone,
+    };
   }
 
   beforeEach(async () => {
@@ -129,13 +137,10 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
   }
 
   describe("Order fulfillment", () => {
-    it("Seaport can fulfill an Immutable-signed advanced order", async () => {
+    it.only("ImmutableSeaport can fulfill an Immutable-signed advanced order", async () => {
       // create basic order using ImmutableZone as zone
       // execute basic 721 <=> ETH order
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
       const offer = [getTestItem721(nftId)];
       const consideration = [
         getItemETH(parseEther("10"), parseEther("10"), seller.address),
@@ -153,7 +158,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       order.extraData = await immutableSigner.signMessage(arrayify(orderHash));
 
       await withBalanceChecks([order], 0, undefined, async () => {
-        const tx = await marketplaceContract
+        const tx = await immutableSeaport
           .connect(buyer)
           .fulfillAdvancedOrder(
             order,
@@ -178,13 +183,10 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       });
     });
 
-    it("Seaport can fulfill an Immutable-signed advanced order with criteria", async () => {
+    it("ImmutableSeaport can fulfill an Immutable-signed advanced order with criteria", async () => {
       // create basic order using immutable zone
       // execute basic 721 <=> ETH order
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const { root, proofs } = merkleTree([nftId]);
 
@@ -212,7 +214,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       order.extraData = await immutableSigner.signMessage(arrayify(orderHash));
 
       await withBalanceChecks([order], 0, criteriaResolvers, async () => {
-        const tx = await marketplaceContract
+        const tx = await immutableSeaport
           .connect(buyer)
           .fulfillAdvancedOrder(
             order,
@@ -245,10 +247,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
     it("Seaport can fulfill an Immutable-signed partial restricted advanced order", async () => {
       // execute basic 721 <=> ETH order
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const offer = [getTestItem721(nftId)];
 
@@ -269,7 +268,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       order.extraData = await immutableSigner.signMessage(arrayify(orderHash));
 
       await withBalanceChecks([order], 0, undefined, async () => {
-        const tx = await marketplaceContract
+        const tx = await immutableSeaport
           .connect(buyer)
           .fulfillAdvancedOrder(
             order,
@@ -296,17 +295,14 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
     it("ImmutableZone can fulfill an order with executeMatchAdvancedOrders", async () => {
       // Mint NFTs for use in orders
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
       const secondNFTId = await mintAndApprove721(
         buyer,
-        marketplaceContract.address
+        immutableSeaport.address
       );
       const thirdNFTId = await mintAndApprove721(
         owner,
-        marketplaceContract.address
+        immutableSeaport.address
       );
 
       // Define orders
@@ -408,7 +404,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
           .connect(buyer)
           .executeMatchAdvancedOrders(
             immutableZone.address,
-            marketplaceContract.address,
+            immutableSeaport.address,
             [orderOne, orderTwo, orderThree],
             [],
             fulfillments,
@@ -425,7 +421,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         .connect(owner)
         .callStatic.executeMatchAdvancedOrders(
           immutableZone.address,
-          marketplaceContract.address,
+          immutableSeaport.address,
           [orderOne, orderTwo, orderThree],
           [],
           fulfillments,
@@ -438,7 +434,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         .connect(owner)
         .executeMatchAdvancedOrders(
           immutableZone.address,
-          marketplaceContract.address,
+          immutableSeaport.address,
           [orderOne, orderTwo, orderThree],
           [],
           fulfillments
@@ -446,7 +442,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
       // Decode all events and get the order hashes
       const orderFulfilledEvents = await decodeEvents(tx, [
-        { eventName: "OrderFulfilled", contract: marketplaceContract },
+        { eventName: "OrderFulfilled", contract: immutableSeaport },
       ]);
       expect(orderFulfilledEvents.length).to.equal(fulfillments.length);
 
@@ -461,10 +457,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
     it("Seaport cannot fill a non-Immutable-signed advanced order", async () => {
       // execute basic 721 <=> ETH order
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
       const offer = [getTestItem721(nftId)];
       const consideration = [
         getItemETH(parseEther("10"), parseEther("10"), seller.address),
@@ -479,7 +472,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       );
 
       await expect(
-        marketplaceContract
+        immutableSeaport
           .connect(buyer)
           .fulfillAdvancedOrder(
             order,
@@ -499,10 +492,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       );
 
       // execute basic 721 <=> ETH order
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
       const offer = [getTestItem721(nftId)];
       const consideration = [
         getItemETH(parseEther("10"), parseEther("10"), seller.address),
@@ -520,7 +510,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       order.extraData = fakeSig.slice(0, fakeSig.length - 1) + "d";
 
       await expect(
-        marketplaceContract
+        immutableSeaport
           .connect(buyer)
           .fulfillAdvancedOrder(
             order,
@@ -640,10 +630,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
     it("Cannot fill order if zone has been pauseed", async () => {
       // execute basic 721 <=> ETH order
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const offer = [getTestItem721(nftId)];
 
@@ -668,18 +655,18 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
       if (!process.env.REFERENCE) {
         await expect(
-          marketplaceContract.connect(buyer).fulfillOrder(order, toKey(0), {
+          immutableSeaport.connect(buyer).fulfillOrder(order, toKey(0), {
             value,
           })
         )
           .to.be.revertedWithCustomError(
-            marketplaceContract,
+            immutableSeaport,
             "InvalidRestrictedOrder"
           )
           .withArgs(orderHash);
       } else {
         await expect(
-          marketplaceContract.connect(buyer).fulfillOrder(order, toKey(0), {
+          immutableSeaport.connect(buyer).fulfillOrder(order, toKey(0), {
             value,
           })
         ).to.be.reverted;
@@ -687,10 +674,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
     });
 
     it("Only owner can unpause the zone", async () => {
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
       const offer = [getTestItem721(nftId)];
       const consideration = [
         getItemETH(parseEther("10"), parseEther("10"), seller.address),
@@ -714,7 +698,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       // order cannot be filled after zone is paused
       if (!process.env.REFERENCE) {
         await expect(
-          marketplaceContract
+          immutableSeaport
             .connect(buyer)
             .fulfillAdvancedOrder(
               order,
@@ -727,13 +711,13 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
             )
         )
           .to.be.revertedWithCustomError(
-            marketplaceContract,
+            immutableSeaport,
             "InvalidRestrictedOrder"
           )
           .withArgs(orderHash);
       } else {
         await expect(
-          marketplaceContract
+          immutableSeaport
             .connect(buyer)
             .fulfillAdvancedOrder(
               order,
@@ -757,7 +741,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
       // order can be filled after zone is unpaused
       await withBalanceChecks([order], 0, undefined, async () => {
-        const tx = await marketplaceContract
+        const tx = await immutableSeaport
           .connect(buyer)
           .fulfillAdvancedOrder(
             order,
@@ -785,10 +769,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
 
   describe("Order cancellation", () => {
     it("Only owner can cancel restricted orders through zone controller", async () => {
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const offer = [getTestItem721(nftId)];
 
@@ -808,7 +789,7 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       await expect(
         immutableZoneController
           .connect(buyer)
-          .cancelOrders(immutableZone.address, marketplaceContract.address, [
+          .cancelOrders(immutableZone.address, immutableSeaport.address, [
             orderComponents,
           ])
       ).to.be.revertedWithCustomError(
@@ -816,24 +797,21 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         "CallerIsNotOwner"
       );
 
-      expect((await marketplaceContract.getOrderStatus(orderHash))[1]).to.equal(
+      expect((await immutableSeaport.getOrderStatus(orderHash))[1]).to.equal(
         false
       );
       await immutableZoneController.cancelOrders(
         immutableZone.address,
-        marketplaceContract.address,
+        immutableSeaport.address,
         [orderComponents]
       );
-      expect((await marketplaceContract.getOrderStatus(orderHash))[1]).to.equal(
+      expect((await immutableSeaport.getOrderStatus(orderHash))[1]).to.equal(
         true
       );
     });
 
     it("Only operator can cancel restricted orders through the zone directly", async () => {
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const offer = [getTestItem721(nftId)];
 
@@ -854,27 +832,24 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
       await expect(
         immutableZone
           .connect(owner)
-          .cancelOrders(marketplaceContract.address, [orderComponents])
+          .cancelOrders(immutableSeaport.address, [orderComponents])
       ).to.be.reverted;
 
       // Operator is allowed to operate the zone
       faucet(immutableSigner.address, provider);
-      expect((await marketplaceContract.getOrderStatus(orderHash))[1]).to.equal(
+      expect((await immutableSeaport.getOrderStatus(orderHash))[1]).to.equal(
         false
       );
       await immutableZone
         .connect(immutableSigner)
-        .cancelOrders(marketplaceContract.address, [orderComponents]);
-      expect((await marketplaceContract.getOrderStatus(orderHash))[1]).to.equal(
+        .cancelOrders(immutableSeaport.address, [orderComponents]);
+      expect((await immutableSeaport.getOrderStatus(orderHash))[1]).to.equal(
         true
       );
     });
 
     it("Order maker can cancel their own restricted orders through Seaport", async () => {
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const offer = [getTestItem721(nftId)];
 
@@ -891,20 +866,17 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         2 // FULL_RESTRICTED
       );
 
-      expect((await marketplaceContract.getOrderStatus(orderHash))[1]).to.equal(
+      expect((await immutableSeaport.getOrderStatus(orderHash))[1]).to.equal(
         false
       );
-      await marketplaceContract.connect(seller).cancel([orderComponents]);
-      expect((await marketplaceContract.getOrderStatus(orderHash))[1]).to.equal(
+      await immutableSeaport.connect(seller).cancel([orderComponents]);
+      expect((await immutableSeaport.getOrderStatus(orderHash))[1]).to.equal(
         true
       );
     });
 
     it("Not zone or order maker cannot cancel restricted orders through Seaport", async () => {
-      const nftId = await mintAndApprove721(
-        seller,
-        marketplaceContract.address
-      );
+      const nftId = await mintAndApprove721(seller, immutableSeaport.address);
 
       const offer = [getTestItem721(nftId)];
 
@@ -921,8 +893,8 @@ describe(`Zone - ImmutableZone (Seaport v${VERSION})`, function () {
         2 // FULL_RESTRICTED
       );
 
-      await expect(marketplaceContract.connect(buyer).cancel([orderComponents]))
-        .to.be.reverted;
+      await expect(immutableSeaport.connect(buyer).cancel([orderComponents])).to
+        .be.reverted;
     });
   });
 

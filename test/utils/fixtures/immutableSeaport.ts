@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { constants } from "ethers";
 import { keccak256, recoverAddress } from "ethers/lib/utils";
-import hre, { ethers } from "hardhat";
+import { ethers } from "hardhat";
 
 import { deployContract } from "../contracts";
 import { getBulkOrderTree } from "../eip712/bulk-orders";
@@ -32,7 +32,6 @@ import type {
 } from "../types";
 import type { Contract, Wallet } from "ethers";
 
-const deployConstants = require("../../../constants/constants");
 // const { bulkOrderType } = require("../../../eip-712-types/bulkOrder");
 const { orderType } = require("../../../eip-712-types/order");
 
@@ -55,32 +54,11 @@ export const immutableSeaportFixture = async (
       conduitController.address
     );
 
-  const marketplaceContractAddress = await create2Factory.findCreate2Address(
-    deployConstants.MARKETPLACE_CONTRACT_CREATION_SALT,
-    marketplaceContractFactory.bytecode +
-      conduitController.address.slice(2).padStart(64, "0")
-  );
+  const marketplaceContract = (await marketplaceContractFactory
+    .connect(owner)
+    .deploy(conduitController.address)) as unknown as ConsiderationInterface;
 
-  let { gasLimit } = await ethers.provider.getBlock("latest");
-
-  if ((hre as any).__SOLIDITY_COVERAGE_RUNNING) {
-    gasLimit = ethers.BigNumber.from(300_000_000);
-  }
-
-  await create2Factory.safeCreate2(
-    deployConstants.MARKETPLACE_CONTRACT_CREATION_SALT,
-    marketplaceContractFactory.bytecode +
-      conduitController.address.slice(2).padStart(64, "0"),
-    {
-      gasLimit,
-    }
-  );
-
-  const marketplaceContract = (await ethers.getContractAt(
-    "ImmutableSeaport",
-    marketplaceContractAddress,
-    owner
-  )) as unknown as ConsiderationInterface;
+  const marketplaceContractAddress = marketplaceContract.address;
 
   await conduitController
     .connect(owner)

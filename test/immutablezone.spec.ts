@@ -20,6 +20,7 @@ import { VERSION } from "./utils/helpers";
 
 import type {
   ConsiderationInterface,
+  ImmutableSeaport,
   ImmutableZone,
   ImmutableZoneController,
   TestERC721,
@@ -98,6 +99,10 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
     await immutableZoneController
       .connect(owner)
       .assignOperator(immutableZone.address, immutableSigner.address);
+
+    await (marketplaceContract as unknown as ImmutableSeaport)
+      .connect(owner)
+      .addImmutableZone(immutableZone.address);
 
     return {
       seller,

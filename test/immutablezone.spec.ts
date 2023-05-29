@@ -140,9 +140,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
   }
 
   describe("Order fulfillment", () => {
-    it("ImmutableSeaport can fulfill an Immutable-signed advanced order", async () => {
-      // create basic order using ImmutableZone as zone
-      // execute basic 721 <=> ETH order
+    it("ImmutableSeaport can fulfill an Immutable-signed advanced FULL_RESTRICTED order", async () => {
       const nftId = await mintAndApprove721(
         seller,
         marketplaceContract.address
@@ -187,6 +185,48 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
         ]);
         return receipt;
       });
+    });
+
+    it.only("ImmutableSeaport rejects an Immutable-signed advanced FULL_OPEN order", async () => {
+      // create basic order using ImmutableZone as zone
+      // execute basic 721 <=> ETH order
+      const nftId = await mintAndApprove721(
+        seller,
+        marketplaceContract.address
+      );
+      const offer = [getTestItem721(nftId)];
+      const consideration = [
+        getItemETH(parseEther("10"), parseEther("10"), seller.address),
+        getItemETH(parseEther("1"), parseEther("1"), owner.address),
+      ];
+      const { order, orderHash, value } = await createOrder(
+        seller,
+        immutableZone,
+        offer,
+        consideration,
+        0 // FULL_OPEN
+      );
+
+      // sign the orderHash with immutableSigner
+      order.extraData = await immutableSigner.signMessage(arrayify(orderHash));
+
+      await expect(
+        marketplaceContract
+          .connect(buyer)
+          .fulfillAdvancedOrder(
+            order,
+            [],
+            toKey(0),
+            ethers.constants.AddressZero,
+            {
+              value,
+            }
+          )
+          .then((tx) => tx.wait())
+      ).to.be.revertedWithCustomError(
+        marketplaceContract,
+        "OrderNotRestricted"
+      );
     });
 
     it("ImmutableSeaport can fulfill an Immutable-signed advanced order with criteria", async () => {
@@ -470,7 +510,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       );
     });
 
-    it("Seaport cannot fill a non-Immutable-signed advanced order", async () => {
+    it("ImmutableSeaport cannot fill a non-Immutable-signed advanced order", async () => {
       // execute basic 721 <=> ETH order
       const nftId = await mintAndApprove721(
         seller,
@@ -504,7 +544,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       ).to.be.revertedWith("ECDSA: invalid signature length");
     });
 
-    it("Seaport cannot fill an advanced order if Immutable signer not set", async () => {
+    it("ImmutableSeaport cannot fill an advanced order if Immutable signer not set", async () => {
       const unsetSignerImmutableZone = await createZone(
         immutableZoneController
       );

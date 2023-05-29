@@ -48,6 +48,13 @@ export const immutableSeaportFixture = async (
     "ImmutableSeaport"
   );
 
+  const directMarketplaceContract =
+    await deployContract<ConsiderationInterface>(
+      process.env.REFERENCE ? "ReferenceConsideration" : "Consideration",
+      owner,
+      conduitController.address
+    );
+
   const marketplaceContractAddress = await create2Factory.findCreate2Address(
     deployConstants.MARKETPLACE_CONTRACT_CREATION_SALT,
     marketplaceContractFactory.bytecode +
@@ -569,9 +576,9 @@ export const immutableSeaportFixture = async (
     };
   };
 
-  const immutableSeaport = marketplaceContract;
   return {
-    immutableSeaport,
+    marketplaceContract,
+    directMarketplaceContract,
     stubZone,
     postExecutionZone,
     invalidContractOfferer,

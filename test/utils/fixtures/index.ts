@@ -41,7 +41,7 @@ const { provider } = ethers;
 
 export const seaportFixture = async (
   owner: Wallet,
-  useImmutableSeaport?: bool
+  useImmutableSeaport?: boolean
 ) => {
   const EIP1271WalletFactory = await ethers.getContractFactory("EIP1271Wallet");
   const reenterer = await deployContract<Reenterer>("Reenterer", owner);

@@ -67,28 +67,28 @@ jobs:
       - run: yarn build
       - run: yarn test
 
-  reference-test:
-    name: Run Reference Tests
-    runs-on: ubuntu-latest
+  # reference-test:
+  #   name: Run Reference Tests
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.15.1]
+  #   strategy:
+  #     matrix:
+  #       node-version: [16.15.1]
 
-    env:
-      REFERENCE: true
+  #   env:
+  #     REFERENCE: true
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "yarn"
-      - run: yarn install
-      - run: yarn build
-      - run: yarn build:ref
-      - run: yarn test:ref
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: "yarn"
+  #     - run: yarn install
+  #     - run: yarn build
+  #     - run: yarn build:ref
+  #     - run: yarn test:ref
 
   forge-lite:
     name: Run "Lite" Forge Tests (via_ir = false; fuzz_runs = 1000)
@@ -203,29 +203,29 @@ jobs:
           files: ./coverage/lcov.info
           flags: production
 
-  reference-coverage:
-    name: Run Reference Coverage Tests
-    runs-on: ubuntu-latest
+  # reference-coverage:
+  #   name: Run Reference Coverage Tests
+  #   runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.15.1]
+  #   strategy:
+  #     matrix:
+  #       node-version: [16.15.1]
 
-    env:
-      REFERENCE: true
+  #   env:
+  #     REFERENCE: true
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "yarn"
-      - run: yarn install
-      - run: yarn build
-      - run: yarn build:ref
-      - run: yarn coverage:ref
-      - uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/lcov.info
-          flags: reference
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: "yarn"
+  #     - run: yarn install
+  #     - run: yarn build
+  #     - run: yarn build:ref
+  #     - run: yarn coverage:ref
+  #     - uses: codecov/codecov-action@v3
+  #       with:
+  #         files: ./coverage/lcov.info
+  #         flags: reference

@@ -103,7 +103,6 @@ contract ImmutableSeaport is Consideration, Ownable {
 
     error OrderNotRestricted();
     error InvalidZone(address zone);
-    error FunctionDisabled();
     /**
      * @notice Derive and set hashes, reference chainId, and associated domain
      *         separator during deployment.
@@ -173,45 +172,42 @@ contract ImmutableSeaport is Consideration, Ownable {
     function fulfillBasicOrder(
         BasicOrderParameters calldata parameters
     ) public payable override returns (bool fulfilled) {
-        revert FunctionDisabled();
         // All restricted orders are captured using this method
-        // if(uint(parameters.basicOrderType) % 4 != 2 && uint(parameters.basicOrderType) % 4 != 3) {
-        //     revert OrderNotRestricted();
-        // }
+        if(uint(parameters.basicOrderType) % 4 != 2 && uint(parameters.basicOrderType) % 4 != 3) {
+            revert OrderNotRestricted();
+        }
 
-        // if (!immutableZones[parameters.zone]) {
-        //     revert InvalidZone(parameters.zone);
-        // }
-        // return super.fulfillBasicOrder(parameters);
+        if (!immutableZones[parameters.zone]) {
+            revert InvalidZone(parameters.zone);
+        }
+        return super.fulfillBasicOrder(parameters);
     }
 
     function fulfillBasicOrder_efficient_6GL6yc(
         BasicOrderParameters calldata parameters
     ) public payable override returns (bool fulfilled) {
-        revert FunctionDisabled();
         // All restricted orders are captured using this method
-        // if(uint(parameters.basicOrderType) % 4 != 2 && uint(parameters.basicOrderType) % 4 != 3) {
-        //     revert OrderNotRestricted();
-        // }
+        if(uint(parameters.basicOrderType) % 4 != 2 && uint(parameters.basicOrderType) % 4 != 3) {
+            revert OrderNotRestricted();
+        }
 
-        // if (!immutableZones[parameters.zone]) {
-        //     revert InvalidZone(parameters.zone);
-        // }
-        // return super.fulfillBasicOrder_efficient_6GL6yc(parameters);
+        if (!immutableZones[parameters.zone]) {
+            revert InvalidZone(parameters.zone);
+        }
+        return super.fulfillBasicOrder_efficient_6GL6yc(parameters);
     }
 
     function fulfillOrder(
         Order calldata order,
         bytes32 fulfillerConduitKey
     ) public payable override returns (bool fulfilled) {
-        revert FunctionDisabled();
-        // if (order.parameters.orderType != OrderType.FULL_RESTRICTED && order.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
-        //     revert OrderNotRestricted();
-        // }
-        // if (!immutableZones[order.parameters.zone]) {
-        //     revert InvalidZone(order.parameters.zone);
-        // }
-        // return super.fulfillOrder(order, fulfillerConduitKey);
+        if (order.parameters.orderType != OrderType.FULL_RESTRICTED && order.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+            revert OrderNotRestricted();
+        }
+        if (!immutableZones[order.parameters.zone]) {
+            revert InvalidZone(order.parameters.zone);
+        }
+        return super.fulfillOrder(order, fulfillerConduitKey);
     }
 
     function fulfillAvailableOrders(
@@ -230,7 +226,22 @@ contract ImmutableSeaport is Consideration, Ownable {
             Execution[] memory /* executions */
         )
     {
-        revert FunctionDisabled();
+        for (uint256 i = 0; i < orders.length; i++) {
+            Order memory order = orders[i];
+            if (order.parameters.orderType != OrderType.FULL_RESTRICTED && order.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+                revert OrderNotRestricted();
+            }
+            if (!immutableZones[order.parameters.zone]) {
+                revert InvalidZone(order.parameters.zone);
+            }
+        }
+        return fulfillAvailableOrders(
+            orders,
+            offerFulfillments,
+            considerationFulfillments,
+            fulfillerConduitKey,
+            maximumFulfilled
+        );
     }
 
     function fulfillAvailableAdvancedOrders(
@@ -273,12 +284,20 @@ contract ImmutableSeaport is Consideration, Ownable {
         );
     }
 
-    // Disabled as it is not possible to pass in extraData
     function matchOrders(
-        Order[] calldata,
-        Fulfillment[] calldata
+        Order[] calldata orders,
+        Fulfillment[] calldata fulfillments
     ) public payable override virtual returns (Execution[] memory /* executions */) {
-        revert FunctionDisabled();
+        for (uint256 i = 0; i < orders.length; i++) {
+            Order memory order = orders[i];
+            if (order.parameters.orderType != OrderType.FULL_RESTRICTED && order.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+                revert OrderNotRestricted();
+            }
+            if (!immutableZones[order.parameters.zone]) {
+                revert InvalidZone(order.parameters.zone);
+            }
+        }
+        return matchOrders(orders, fulfillments);
     }
 
     function matchAdvancedOrders(

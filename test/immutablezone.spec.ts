@@ -729,7 +729,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       ).to.be.reverted;
     });
 
-    it("Cannot fill order if zone has been pauseed", async () => {
+    it("Cannot fill order if zone has been paused", async () => {
       // execute basic 721 <=> ETH order
       const nftId = await mintAndApprove721(
         seller,

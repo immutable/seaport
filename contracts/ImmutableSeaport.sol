@@ -128,22 +128,6 @@ contract ImmutableSeaport is Consideration, Ownable {
         immutableZones[zone] = false;
     }
 
-
-    // Convenience function to set multiple zone validity at once
-    function setImmutableZones(
-        address[] calldata zones,
-        bool[] calldata valid
-    ) external onlyOwner() {
-        require(
-            zones.length == valid.length,
-            "ImmutableSeaport: zones and valid must be the same length"
-        );
-        for (uint256 i = 0; i < zones.length; i++) {
-            immutableZones[zones[i]] = valid[i];
-        }
-    }
-
-
     /**
      * @dev Internal pure function to retrieve and return the name of this
      *      contract.
@@ -199,10 +183,16 @@ contract ImmutableSeaport is Consideration, Ownable {
     }
 
     function fulfillOrder(
-        Order calldata,
+        Order calldata order,
         bytes32 fulfillerConduitKey
     ) public payable override returns (bool fulfilled) {
-        revert FunctionDisabled();
+        if (order.parameters.orderType != OrderType.FULL_RESTRICTED && order.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+            revert OrderNotRestricted();
+        }
+        if (!immutableZones[order.parameters.zone]) {
+            revert InvalidZone(order.parameters.zone);
+        }
+        return super.fulfillOrder(order, fulfillerConduitKey);
     }
 
     function fulfillAvailableOrders(

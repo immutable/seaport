@@ -140,7 +140,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
   }
 
   describe("Order fulfillment", () => {
-    it("ImmutableSeaport can fulfill an Immutable-signed advanced FULL_RESTRICTED order", async () => {
+    it("ImmutableSeaport can fulfill an Immutable-signed FULL_RESTRICTED advanced order", async () => {
       const nftId = await mintAndApprove721(
         seller,
         marketplaceContract.address
@@ -187,7 +187,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       });
     });
 
-    it.only("ImmutableSeaport rejects an Immutable-signed advanced FULL_OPEN order", async () => {
+    it("ImmutableSeaport rejects an Immutable-signed FULL_OPEN advanced order", async () => {
       // create basic order using ImmutableZone as zone
       // execute basic 721 <=> ETH order
       const nftId = await mintAndApprove721(
@@ -229,7 +229,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       );
     });
 
-    it("ImmutableSeaport can fulfill an Immutable-signed advanced order with criteria", async () => {
+    it("ImmutableSeaport can fulfill an Immutable-signed FULL_RESTRICTED advanced order with criteria", async () => {
       // create basic order using immutable zone
       // execute basic 721 <=> ETH order
       const nftId = await mintAndApprove721(
@@ -294,7 +294,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       });
     });
 
-    it("Seaport can fulfill an Immutable-signed partial restricted advanced order", async () => {
+    it("ImmutableSeaport can fulfill an Immutable-signed PARTIAL_RESTRICTED advanced order", async () => {
       // execute basic 721 <=> ETH order
       const nftId = await mintAndApprove721(
         seller,
@@ -345,7 +345,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       });
     });
 
-    it("ImmutableZone can fulfill an order with executeMatchAdvancedOrders", async () => {
+    it("ImmutableZone can fulfill a FULL_RESTRICTED order with executeMatchAdvancedOrders", async () => {
       // Mint NFTs for use in orders
       const nftId = await mintAndApprove721(
         seller,
@@ -510,7 +510,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       );
     });
 
-    it("ImmutableSeaport cannot fill a non-Immutable-signed advanced order", async () => {
+    it("ImmutableSeaport cannot fill a non-Immutable-signed FULL_RESTRICTED advanced order", async () => {
       // execute basic 721 <=> ETH order
       const nftId = await mintAndApprove721(
         seller,
@@ -544,7 +544,47 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
       ).to.be.revertedWith("ECDSA: invalid signature length");
     });
 
-    it("ImmutableSeaport cannot fill an advanced order if Immutable signer not set", async () => {
+    it("ImmutableSeaport cannot fill a FULL_RESTRICTED advanced order with fake signature", async () => {
+      // execute basic 721 <=> ETH order
+      const nftId = await mintAndApprove721(
+        seller,
+        marketplaceContract.address
+      );
+      const offer = [getTestItem721(nftId)];
+      const consideration = [
+        getItemETH(parseEther("10"), parseEther("10"), seller.address),
+        getItemETH(parseEther("1"), parseEther("1"), owner.address),
+      ];
+      const { order, value, orderHash } = await createOrder(
+        seller,
+        immutableZone,
+        offer,
+        consideration,
+        2 // FULL_RESTRICTED
+      );
+
+      const fakeSigner = new ethers.Wallet(randomHex(32), provider);
+      order.extraData = await fakeSigner.signMessage(arrayify(orderHash));
+
+      await expect(
+        marketplaceContract
+          .connect(buyer)
+          .fulfillAdvancedOrder(
+            order,
+            [],
+            toKey(0),
+            ethers.constants.AddressZero,
+            {
+              value,
+            }
+          )
+      ).to.be.revertedWithCustomError(
+        marketplaceContract,
+        "InvalidRestrictedOrder"
+      );
+    });
+
+    it("ImmutableSeaport cannot fill a FULL_RESTRICTED advanced order if invalid zone is used", async () => {
       const unsetSignerImmutableZone = await createZone(
         immutableZoneController
       );
@@ -582,7 +622,7 @@ describe(`ImmutableSeaport and ImmutableZone (Seaport v${VERSION})`, function ()
               value,
             }
           )
-      ).to.be.reverted;
+      ).to.be.revertedWithCustomError(marketplaceContract, "InvalidZone");
     });
   });
 

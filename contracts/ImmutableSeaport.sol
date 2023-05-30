@@ -253,11 +253,21 @@ contract ImmutableSeaport is Consideration, Ownable {
     }
 
     function matchAdvancedOrders(
-        AdvancedOrder[] calldata,
-        CriteriaResolver[] calldata,
-        Fulfillment[] calldata,
+        AdvancedOrder[] calldata advancedOrders,
+        CriteriaResolver[] calldata criteriaResolvers,
+        Fulfillment[] calldata fulfillments,
         address recipient
     ) public payable override virtual returns (Execution[] memory /* executions */) {
-        revert FunctionDisabled();
+        for (uint256 i = 0; i < advancedOrders.length; i++) {
+            AdvancedOrder memory advancedOrder = advancedOrders[i];
+            if (advancedOrder.parameters.orderType != OrderType.FULL_RESTRICTED && advancedOrder.parameters.orderType != OrderType.PARTIAL_RESTRICTED) {
+                revert OrderNotRestricted();
+            }
+
+            if (!immutableZones[advancedOrder.parameters.zone]) {
+                revert InvalidZone(advancedOrder.parameters.zone);
+            }
+        }
+        return super.matchAdvancedOrders(advancedOrders, criteriaResolvers, fulfillments, recipient);
     }
 }

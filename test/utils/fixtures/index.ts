@@ -7,10 +7,14 @@ import { toBN } from "../encoding";
 
 import { conduitFixture } from "./conduit";
 import { create2FactoryFixture } from "./create2";
+import { immutableSeaportFixture } from "./immutableSeaport";
 import { marketplaceFixture } from "./marketplace";
 import { tokensFixture } from "./tokens";
 
-import type { Reenterer } from "../../../typechain-types";
+import type {
+  ConsiderationInterface,
+  Reenterer,
+} from "../../../typechain-types";
 import type {
   AdvancedOrder,
   ConsiderationItem,
@@ -35,7 +39,10 @@ export {
 
 const { provider } = ethers;
 
-export const seaportFixture = async (owner: Wallet) => {
+export const seaportFixture = async (
+  owner: Wallet,
+  useImmutableSeaport?: boolean
+) => {
   const EIP1271WalletFactory = await ethers.getContractFactory("EIP1271Wallet");
   const reenterer = await deployContract<Reenterer>("Reenterer", owner);
   const { chainId } = await provider.getNetwork();
@@ -71,26 +78,62 @@ export const seaportFixture = async (owner: Wallet) => {
     createTransferWithApproval,
   } = await tokensFixture(owner as any);
 
-  const {
-    marketplaceContract,
-    directMarketplaceContract,
-    stubZone,
-    postExecutionZone,
-    invalidContractOfferer,
-    invalidContractOffererRatifyOrder,
-    domainData,
-    signOrder,
-    signBulkOrder,
-    createOrder,
-    createMirrorBuyNowOrder,
-    createMirrorAcceptOfferOrder,
-  } = await marketplaceFixture(
-    create2Factory,
-    conduitController,
-    conduitOne,
-    chainId,
-    owner
-  );
+  let marketplaceContract: ConsiderationInterface;
+  let directMarketplaceContract;
+  let stubZone;
+  let postExecutionZone;
+  let invalidContractOfferer;
+  let invalidContractOffererRatifyOrder;
+  let domainData;
+  let signOrder;
+  let signBulkOrder;
+  let createOrder;
+  let createMirrorBuyNowOrder;
+  let createMirrorAcceptOfferOrder;
+
+  if (useImmutableSeaport) {
+    ({
+      marketplaceContract,
+      directMarketplaceContract,
+      stubZone,
+      postExecutionZone,
+      invalidContractOfferer,
+      invalidContractOffererRatifyOrder,
+      domainData,
+      signOrder,
+      signBulkOrder,
+      createOrder,
+      createMirrorBuyNowOrder,
+      createMirrorAcceptOfferOrder,
+    } = await immutableSeaportFixture(
+      create2Factory,
+      conduitController,
+      conduitOne,
+      chainId,
+      owner
+    ));
+  } else {
+    ({
+      marketplaceContract,
+      directMarketplaceContract,
+      stubZone,
+      postExecutionZone,
+      invalidContractOfferer,
+      invalidContractOffererRatifyOrder,
+      domainData,
+      signOrder,
+      signBulkOrder,
+      createOrder,
+      createMirrorBuyNowOrder,
+      createMirrorAcceptOfferOrder,
+    } = await marketplaceFixture(
+      create2Factory,
+      conduitController,
+      conduitOne,
+      chainId,
+      owner
+    ));
+  }
 
   const withBalanceChecks = async (
     ordersArray: AdvancedOrder[], // TODO: include order statuses to account for partial fills

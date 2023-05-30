@@ -173,13 +173,29 @@ contract ImmutableSeaport is Consideration, Ownable {
     function fulfillBasicOrder(
         BasicOrderParameters calldata parameters
     ) public payable override returns (bool fulfilled) {
-        revert FunctionDisabled();
+        // All restricted orders are captured using this method
+        if(uint(parameters.basicOrderType) % 4 != 2 && uint(parameters.basicOrderType) % 4 != 3) {
+            revert OrderNotRestricted();
+        }
+
+        if (!immutableZones[parameters.zone]) {
+            revert InvalidZone(parameters.zone);
+        }
+        return super.fulfillBasicOrder(parameters);
     }
 
     function fulfillBasicOrder_efficient_6GL6yc(
         BasicOrderParameters calldata parameters
     ) public payable override returns (bool fulfilled) {
-        revert FunctionDisabled();
+        // All restricted orders are captured using this method
+        if(uint(parameters.basicOrderType) % 4 != 2 && uint(parameters.basicOrderType) % 4 != 3) {
+            revert OrderNotRestricted();
+        }
+
+        if (!immutableZones[parameters.zone]) {
+            revert InvalidZone(parameters.zone);
+        }
+        return super.fulfillBasicOrder_efficient_6GL6yc(parameters);
     }
 
     function fulfillOrder(

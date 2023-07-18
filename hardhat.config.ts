@@ -15,7 +15,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-
+import "hardhat-deploy";
 // Filter Reference Contracts
 subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
   async (_, __, runSuper) => {
@@ -139,6 +139,12 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: process.env.EXPLORER_API_KEY,
+  },
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    signer: { default: 0, 5: "0xfbCC3974d468A245aC0BFCf421Cdf22E43232F9A" },
   },
   // specify separate cache for hardhat, since it could possibly conflict with foundry's
   paths: { cache: "hh-cache" },

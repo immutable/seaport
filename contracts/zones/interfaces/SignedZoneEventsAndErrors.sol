@@ -60,6 +60,16 @@ interface SignedZoneEventsAndErrors {
     );
 
     /**
+     * @dev Revert with an error if SIP6 version is not supported
+     */
+    error InvalidSIP6Version();
+
+    /**
+     * @dev Revert with an error if consideration items are invalid
+     */
+    error InvalidConsideration();
+
+    /**
      * @dev Revert with an error if supplied order extraData is invalid
      *      or improperly formatted.
      */

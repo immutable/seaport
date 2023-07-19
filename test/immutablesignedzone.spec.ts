@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { expect } from "chai";
 import { Wallet, constants } from "ethers";
-import { keccak256 } from "ethers/lib/utils";
+import { arrayify, keccak256 } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
 import { ImmutableSignedZone__factory } from "../typechain-types";
@@ -21,15 +21,18 @@ import type { ReceivedItemStruct } from "../typechain-types/contracts/interfaces
 import type { ZoneParametersStruct } from "../typechain-types/contracts/interfaces/ZoneInterface";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import type { BytesLike } from "ethers";
+import type { Bytes } from "ethers/lib/utils";
 
 describe.only("ImmutableSignedZone", function () {
   let deployer: SignerWithAddress;
   let users: SignerWithAddress[];
   let contract: ImmutableSignedZone;
+  let chainId: number;
 
   beforeEach(async () => {
     // automine ensure time based tests will work
     await autoMining();
+    chainId = (await ethers.provider.getNetwork()).chainId;
     users = await ethers.getSigners();
     deployer = users[0];
     const factory = await ethers.getContractFactory("ImmutableSignedZone");
@@ -68,7 +71,6 @@ describe.only("ImmutableSignedZone", function () {
       const expiration = await getCurrentTimeStamp();
       const fulfiller = constants.AddressZero;
       const context = ethers.utils.randomBytes(33);
-      context[0] = 0;
       const signedOrder = {
         fulfiller,
         expiration,
@@ -77,7 +79,195 @@ describe.only("ImmutableSignedZone", function () {
       };
 
       const signature = await signer._signTypedData(
-        EIP712_DOMAIN(1, contract.address),
+        EIP712_DOMAIN(chainId, contract.address),
+        SIGNED_ORDER_EIP712_TYPE,
+        signedOrder
+      );
+
+      const extraData = ethers.utils.solidityPack(
+        ["bytes1", "address", "uint64", "bytes", "bytes"],
+        [
+          0, // SIP6 version
+          fulfiller,
+          expiration,
+          convertSignatureToEIP2098(signature),
+          context,
+        ]
+      );
+
+      await advanceBlockBySeconds(100);
+      await expect(
+        contract.validateOrder(mockZoneParameter(extraData))
+      ).to.be.revertedWithCustomError(contract, "SignatureExpired");
+    });
+
+    it("validateOrder reverts with invalid fulfiller", async function () {
+      const orderHash = keccak256("0x1234");
+      const expiration = (await getCurrentTimeStamp()) + 100;
+      const fulfiller = Wallet.createRandom().address;
+      const context = ethers.utils.randomBytes(33);
+      const signedOrder = {
+        fulfiller,
+        expiration,
+        orderHash,
+        context,
+      };
+
+      const signature = await signer._signTypedData(
+        EIP712_DOMAIN(chainId, contract.address),
+        SIGNED_ORDER_EIP712_TYPE,
+        signedOrder
+      );
+
+      const extraData = ethers.utils.solidityPack(
+        ["bytes1", "address", "uint64", "bytes", "bytes"],
+        [
+          0, // SIP6 version
+          fulfiller,
+          expiration,
+          convertSignatureToEIP2098(signature),
+          context,
+        ]
+      );
+
+      await expect(
+        contract.validateOrder(mockZoneParameter(extraData))
+      ).to.be.revertedWithCustomError(contract, "InvalidFulfiller");
+    });
+
+    it("validateOrder reverts with non 0 SIP6 version", async function () {
+      const orderHash = keccak256("0x1234");
+      const expiration = (await getCurrentTimeStamp()) + 100;
+      const fulfiller = constants.AddressZero;
+      const context = ethers.utils.randomBytes(33);
+      const signedOrder = {
+        fulfiller,
+        expiration,
+        orderHash,
+        context,
+      };
+
+      const signature = await signer._signTypedData(
+        EIP712_DOMAIN(chainId, contract.address),
+        SIGNED_ORDER_EIP712_TYPE,
+        signedOrder
+      );
+
+      const extraData = ethers.utils.solidityPack(
+        ["bytes1", "address", "uint64", "bytes", "bytes"],
+        [
+          1, // SIP6 version
+          fulfiller,
+          expiration,
+          convertSignatureToEIP2098(signature),
+          context,
+        ]
+      );
+
+      await expect(
+        contract.validateOrder(mockZoneParameter(extraData))
+      ).to.be.revertedWithCustomError(contract, "InvalidSIP6Version");
+    });
+
+    it("validateOrder reverts with no context", async function () {
+      const orderHash = keccak256("0x1234");
+      const expiration = (await getCurrentTimeStamp()) + 100;
+      const fulfiller = constants.AddressZero;
+      const context: BytesLike = [];
+      const signedOrder = {
+        fulfiller,
+        expiration,
+        orderHash,
+        context,
+      };
+
+      const signature = await signer._signTypedData(
+        EIP712_DOMAIN(chainId, contract.address),
+        SIGNED_ORDER_EIP712_TYPE,
+        signedOrder
+      );
+
+      const extraData = ethers.utils.solidityPack(
+        ["bytes1", "address", "uint64", "bytes", "bytes"],
+        [
+          0, // SIP6 version
+          fulfiller,
+          expiration,
+          convertSignatureToEIP2098(signature),
+          context,
+        ]
+      );
+
+      await expect(
+        contract.validateOrder(mockZoneParameter(extraData))
+      ).to.be.revertedWithCustomError(contract, "InvalidConsideration");
+    });
+
+    it("validateOrder reverts with wrong consideration", async function () {
+      const orderHash = keccak256("0x1234");
+      const expiration = (await getCurrentTimeStamp()) + 100;
+      const fulfiller = constants.AddressZero;
+      const consideration = mockConsideration();
+      const context: BytesLike = ethers.utils.solidityPack(
+        ["bytes1", "bytes"],
+        [0, constants.HashZero]
+      );
+      const signedOrder = {
+        fulfiller,
+        expiration,
+        orderHash,
+        context,
+      };
+
+      const signature = await signer._signTypedData(
+        EIP712_DOMAIN(chainId, contract.address),
+        SIGNED_ORDER_EIP712_TYPE,
+        signedOrder
+      );
+
+      const extraData = ethers.utils.solidityPack(
+        ["bytes1", "address", "uint64", "bytes", "bytes"],
+        [
+          0, // SIP6 version
+          fulfiller,
+          expiration,
+          convertSignatureToEIP2098(signature),
+          context,
+        ]
+      );
+
+      await expect(
+        contract.validateOrder(mockZoneParameter(extraData, consideration))
+      ).to.be.revertedWithCustomError(contract, "InvalidConsideration");
+    });
+
+    it("validates correct signature with context", async function () {
+      const orderHash = keccak256("0x1234");
+      const expiration = (await getCurrentTimeStamp()) + 100;
+      const fulfiller = constants.AddressZero;
+      const consideration = mockConsideration();
+      const considerationHash = ethers.utils._TypedDataEncoder.hashStruct(
+        "Consideration",
+        CONSIDERATION_EIP712_TYPE,
+        {
+          consideration,
+        }
+      );
+
+      const context: BytesLike = ethers.utils.solidityPack(
+        ["bytes"],
+        [considerationHash]
+      );
+
+      const signedOrder = {
+        fulfiller,
+        expiration,
+        orderHash,
+        context,
+      };
+
+      const signature = await signer._signTypedData(
+        EIP712_DOMAIN(chainId, contract.address),
         SIGNED_ORDER_EIP712_TYPE,
         signedOrder
       );
@@ -93,10 +283,11 @@ describe.only("ImmutableSignedZone", function () {
         ]
       );
 
-      await advanceBlockBySeconds(100);
-      await expect(
-        contract.validateOrder(mockZoneParameter(extraData))
-      ).to.be.revertedWithCustomError(contract, "SignatureExpired");
+      expect(
+        await contract.validateOrder(
+          mockZoneParameter(extraData, consideration)
+        )
+      ).to.be.equal("0x17b1f942"); // ZoneInterface.validateOrder.selector
     });
   });
 });

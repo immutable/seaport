@@ -6,22 +6,17 @@ import {
     Schema,
     ReceivedItem
 } from "../lib/ConsiderationStructs.sol";
-
 import { ZoneInterface } from "../interfaces/ZoneInterface.sol";
-
 import {
     ImmutableSignedZoneInterface
 } from "./interfaces/ImmutableSignedZoneInterface.sol";
-
 import {
     SignedZoneEventsAndErrors
 } from "./interfaces/SignedZoneEventsAndErrors.sol";
-
 import { SIP5Interface } from "./interfaces/SIP5Interface.sol";
-
 import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
-
-import "hardhat/console.sol";
+import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title  ImmutableSignedZone
@@ -68,8 +63,41 @@ contract ImmutableSignedZone is
             )
         );
 
+    bytes32 internal immutable _SIGNED_ORDER_TYPEHASH =
+        keccak256(
+            abi.encodePacked(
+                "SignedOrder(",
+                "address fulfiller,",
+                "uint64 expiration,",
+                "bytes32 orderHash,",
+                "bytes context",
+                ")"
+            )
+        );
+
+    bytes public constant CONSIDERATION_BYTES =
+        abi.encodePacked("Consideration(", "ReceivedItem[] consideration", ")");
+
+    bytes public constant RECEIVED_ITEM_BYTES =
+        abi.encodePacked(
+            "ReceivedItem(",
+            "uint8 itemType,",
+            "address token,",
+            "uint256 identifier,",
+            "uint256 amount,",
+            "address recipient",
+            ")"
+        );
+
+    bytes32 public constant RECEIVED_ITEM_TYPEHASH =
+        keccak256(RECEIVED_ITEM_BYTES);
+
+    bytes32 public constant CONSIDERATION_TYPEHASH =
+        keccak256(abi.encodePacked(CONSIDERATION_BYTES, RECEIVED_ITEM_BYTES));
+
     uint256 internal immutable _CHAIN_ID = block.chainid;
     bytes32 internal immutable _DOMAIN_SEPARATOR;
+    uint8 internal immutable _ACCEPTED_SIP6_VERSION = 0;
 
     /**
      * @notice Constructor to deploy the contract.
@@ -183,11 +211,16 @@ contract ImmutableSignedZone is
         uint64 expiration = uint64(bytes8(extraData[21:29]));
 
         // extraData bytes 29-93: signature
-        // (strictly requires 64 byte compact sig, EIP-2098)
+        // (strictly requires 64 byte compact sig, ERC2098)
         bytes calldata signature = extraData[29:93];
 
         // extraData bytes 93-end: context (optional, variable length)
         bytes calldata context = extraData[93:];
+
+        // Revert if SIP6 version is not accepted (0)
+        if (uint8(sip6Version[0]) != _ACCEPTED_SIP6_VERSION) {
+            revert InvalidSIP6Version();
+        }
 
         // Revert if expired.
         if (block.timestamp > expiration) {
@@ -197,6 +230,65 @@ contract ImmutableSignedZone is
         // Put fulfiller on the stack for more efficient access.
         address actualFulfiller = zoneParameters.fulfiller;
 
+        // Revert unless
+        // Expected fulfiller is 0 address (any fulfiller) or
+        // Expected fulfiller is the same as actual fulfiller
+        if (
+            expectedFulfiller != address(0) &&
+            expectedFulfiller != actualFulfiller
+        ) {
+            revert InvalidFulfiller(
+                expectedFulfiller,
+                actualFulfiller,
+                orderHash
+            );
+        }
+
+        // context must be exactly a keccak256 hash of consideration item array
+        if (context.length != 32) {
+            revert InvalidConsideration();
+        }
+        bytes32 contextConsiderationHash = bytes32(context);
+
+        // Revert unless context matches expected consideration hash
+        // substandard #3
+        bytes32 expectedConsiderationHash = _deriveConsiderationHash(
+            zoneParameters.consideration
+        );
+        if (expectedConsiderationHash != contextConsiderationHash) {
+            revert InvalidConsideration();
+        }
+
+        // Derive the signedOrder hash
+        bytes32 signedOrderHash = _deriveSignedOrderHash(
+            expectedFulfiller,
+            expiration,
+            orderHash,
+            context
+        );
+
+        // Derive the EIP-712 digest using the domain separator and signedOrder
+        // hash through openzepplin helper
+        bytes32 digest = ECDSA.toTypedDataHash(
+            _domainSeparator(),
+            signedOrderHash
+        );
+
+        // Recover the signer address from the digest and signature.
+        // Pass in R and VS from compact signature (ERC2098)
+        address recoveredSigner = ECDSA.recover(
+            digest,
+            bytes32(signature[0:32]),
+            bytes32(signature[32:64])
+        );
+
+        // Revert if the signer is not active
+        // !This also reverts if the digest constructed on serverside is incorrect
+        if (!_signers[recoveredSigner].active) {
+            revert SignerNotActive(recoveredSigner, orderHash);
+        }
+
+        // All validation completes and passes with no reverts, return valid
         validOrderMagicValue = ZoneInterface.validateOrder.selector;
     }
 
@@ -283,5 +375,64 @@ contract ImmutableSignedZone is
 
         // Return the API endpoint.
         apiEndpoint = _sip7APIEndpoint;
+    }
+
+    /**
+     * @dev Derive the signedOrder hash from the orderHash and expiration.
+     *
+     * @param fulfiller  The expected fulfiller address.
+     * @param expiration The signature expiration timestamp.
+     * @param orderHash  The order hash.
+     * @param context    The optional variable-length context.
+     *
+     * @return signedOrderHash The signedOrder hash.
+     *
+     */
+    function _deriveSignedOrderHash(
+        address fulfiller,
+        uint64 expiration,
+        bytes32 orderHash,
+        bytes calldata context
+    ) internal view returns (bytes32 signedOrderHash) {
+        // Derive the signed order hash.
+        signedOrderHash = keccak256(
+            abi.encode(
+                _SIGNED_ORDER_TYPEHASH,
+                fulfiller,
+                expiration,
+                orderHash,
+                keccak256(context)
+            )
+        );
+    }
+
+    /**
+     * @dev Derive the EIP712 consideration hash based on received item array
+     * @param consideration expected consideration array
+     */
+    function _deriveConsiderationHash(
+        ReceivedItem[] calldata consideration
+    ) internal pure returns (bytes32) {
+        uint256 numberOfItems = consideration.length;
+        bytes32[] memory considerationHashes = new bytes32[](numberOfItems);
+        for (uint256 i; i < numberOfItems; i++) {
+            considerationHashes[i] = keccak256(
+                abi.encode(
+                    RECEIVED_ITEM_HASHTYPE,
+                    consideration[i].itemType,
+                    consideration[i].token,
+                    consideration[i].identifier,
+                    consideration[i].amount,
+                    consideration[i].recipient
+                )
+            );
+        }
+        return
+            keccak256(
+                abi.encode(
+                    CONSIDERATION_HASHTYPE,
+                    keccak256(abi.encodePacked(considerationHashes))
+                )
+            );
     }
 }

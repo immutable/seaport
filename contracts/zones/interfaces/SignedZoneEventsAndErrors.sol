@@ -17,49 +17,38 @@ interface SignedZoneEventsAndErrors {
     event SignerRemoved(address signer);
 
     /**
-     * @dev Revert with an error if msg.sender is not the owner
-     *      or an active signer.
+     * @dev Revert with an error if trying to add a signer that is
+     *      already active.
      */
-    error OnlyOwnerOrActiveSigner();
+    error SignerAlreadyAdded(address signer);
+
+    /**
+     * @dev Revert with an error if trying to remove a signer that is
+     *      not present.
+     */
+    error SignerNotPresent(address signer);
+
+    /**
+     * @dev Revert with an error if a new signer is the zero address.
+     */
+    error SignerCannotBeZeroAddress();
+
+    /**
+     * @dev Revert with an error if a removed signer is trying to be
+     *      reauthorized.
+     */
+    error SignerCannotBeReauthorized(address signer);
+
+    /**
+     * @dev Revert with an error when an order is signed with a signer
+     *      that is not active.
+     */
+    error SignerNotActive(address signer, bytes32 orderHash);
 
     /**
      * @dev Revert with an error when the signature has expired.
      */
     error SignatureExpired(uint256 expiration, bytes32 orderHash);
-
-    /**
-     * @dev Revert with an error when attempting to update the signers of a
-     *      the zone from a caller that is not the zone's controller.
-     */
-    error InvalidController();
-
-    /**
-     * @dev Revert with an error if supplied order extraData is an invalid
-     *      length.
-     */
-    error InvalidExtraDataLength(bytes32 orderHash);
-
-    /**
-     * @dev Revert with an error if the supplied order extraData does not
-     *      support the zone's SIP6 version.
-     */
-    error InvalidSIP6Version(bytes32 orderHash);
-
-    /**
-     * @dev Revert with an error if the supplied order extraData does not
-     *      support the zone's substandard requirements.
-     */
-    error InvalidSubstandardSupport(
-        string reason,
-        uint256 substandardVersion,
-        bytes32 orderHash
-    );
-
-    /**
-     * @dev Revert with an error if the supplied order extraData does not
-     *      support the zone's substandard version.
-     */
-    error InvalidSubstandardVersion(bytes32 orderHash);
 
     /**
      * @dev Revert with an error if the fulfiller does not match.
@@ -71,22 +60,8 @@ interface SignedZoneEventsAndErrors {
     );
 
     /**
-     * @dev Revert with an error if the consideration does not match.
+     * @dev Revert with an error if supplied order extraData is invalid
+     *      or improperly formatted.
      */
-    error InvalidConsideration(
-        uint256 expectedConsiderationHash,
-        uint256 actualConsiderationHash,
-        bytes32 orderHash
-    );
-
-    /**
-     * @dev Revert with an error if the zone parameter encoding is invalid.
-     */
-    error InvalidZoneParameterEncoding();
-
-    /**
-     * @dev Revert with an error when an order is signed with a signer
-     *      that is not active.
-     */
-    error SignerNotActive(address signer, bytes32 orderHash);
+    error InvalidExtraData(string reason, bytes32 orderHash);
 }

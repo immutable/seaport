@@ -19,7 +19,7 @@ import type { ZoneParametersStruct } from "../typechain-types/contracts/interfac
 import type { Contracts, User } from "./signedZone/contracts";
 import type { BytesLike } from "ethers/lib/utils";
 
-describe.only("Breakwater", function () {
+describe("Breakwater", function () {
   let deployer: User;
   let users: User[];
   let contracts: Contracts;
@@ -200,7 +200,9 @@ describe.only("Breakwater", function () {
 
     it("reverts when validity expired", async function () {
       const orderHash = keccak256("0x1234");
-      const expiration = await getCurrentTimeStamp();
+      const expiration = (
+        await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+      ).timestamp;
       const fulfiller = constants.AddressZero;
       const context = ethers.utils.randomBytes(33);
       context[0] = 0;
@@ -482,6 +484,8 @@ describe.only("Breakwater", function () {
         SIGNED_ORDER_EIP712_TYPE,
         signedOrder
       );
+
+      console.log("frank" + signer.address);
 
       const extraData = utils.solidityPack(
         ["bytes1", "address", "uint64", "bytes", "bytes"],

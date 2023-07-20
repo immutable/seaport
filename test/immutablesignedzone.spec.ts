@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { expect } from "chai";
 import { Wallet, constants } from "ethers";
-import { arrayify, keccak256 } from "ethers/lib/utils";
+import { keccak256 } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
 import { ImmutableSignedZone__factory } from "../typechain-types";
@@ -21,7 +21,6 @@ import type { ReceivedItemStruct } from "../typechain-types/contracts/interfaces
 import type { ZoneParametersStruct } from "../typechain-types/contracts/interfaces/ZoneInterface";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import type { BytesLike } from "ethers";
-import type { Bytes } from "ethers/lib/utils";
 
 describe.only("ImmutableSignedZone", function () {
   let deployer: SignerWithAddress;
@@ -312,15 +311,19 @@ function mockZoneParameter(
   consideration: ReceivedItemStruct[] = []
 ): ZoneParametersStruct {
   return {
+    // fix order hash for testing (zone doesn't validate its actual validity)
     orderHash: keccak256("0x1234"),
     fulfiller: constants.AddressZero,
+    // zero address - also does not get validated in zone
     offerer: constants.AddressZero,
+    // empty offer - no validation in zone
     offer: [],
     consideration,
     extraData,
     orderHashes: [],
     startTime: 0,
     endTime: 0,
+    // we do not use zone hash
     zoneHash: constants.HashZero,
   };
 }

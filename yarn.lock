@@ -5318,10 +5318,9 @@ seaport-core@^0.0.1:
   dependencies:
     seaport-types "^0.0.1"
 
-seaport-core@^1.5.0:
+seaport-core@immutable/seaport-core#1.5.0-base:
   version "1.5.0"
-  resolved "https://registry.yarnpkg.com/seaport-core/-/seaport-core-1.5.0.tgz#1dae19b6c7940b0042be50b6ff070b13da0c5a09"
-  integrity sha512-qS5y3+EdW+ostBliVqzAP/b0eceKFNPSe6JsvvxYtkpdb9hVI6Ls2N+rOxQ4LcW2h/yGARAJPk7nxm4I7PRjqQ==
+  resolved "https://codeload.github.com/immutable/seaport-core/tar.gz/4a0a42aa6b38d6928789c83361540243e4a20494"
   dependencies:
     seaport-types "^0.0.1"
 

@@ -5318,9 +5318,9 @@ seaport-core@^0.0.1:
   dependencies:
     seaport-types "^0.0.1"
 
-seaport-core@immutable/seaport-core#1.5.0-base:
+seaport-core@immutable/seaport-core#1.5.0+im.1:
   version "1.5.0"
-  resolved "https://codeload.github.com/immutable/seaport-core/tar.gz/4a0a42aa6b38d6928789c83361540243e4a20494"
+  resolved "https://codeload.github.com/immutable/seaport-core/tar.gz/33e9030f308500b422926a1be12d7a1e4d6adc06"
   dependencies:
     seaport-types "^0.0.1"
 

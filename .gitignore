@@ -43,3 +43,6 @@ metrics.txt
 *-metrics.txt
 
 fuzz_debug.json
+
+# Ignore compiled test-utils for consumption by downstream consumers
+test-utils

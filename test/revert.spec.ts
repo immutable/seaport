@@ -8398,7 +8398,9 @@ describe(`Reverts (Seaport v${VERSION})`, function () {
     });
   });
 
-  describe(`Changing chainId`, function () {
+  // The approach to changing the chainId below no longer works with hardhat.
+  // Re-enabling this relies on https://github.com/NomicFoundation/hardhat/issues/3074
+  describe.skip(`Changing chainId`, function () {
     // Note: Run this test last in this file as it hacks changing the hre
     it("Reverts on changed chainId", async () => {
       const nftId = await mintAndApprove721(

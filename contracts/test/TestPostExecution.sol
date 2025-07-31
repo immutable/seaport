@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import { ZoneInterface } from "seaport-types/src/interfaces/ZoneInterface.sol";
+import { ZoneInterface } from "seaport-types-16/src/interfaces/ZoneInterface.sol";
 
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {
     ERC721Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "seaport-types-16/src/interfaces/AbridgedTokenInterfaces.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import {
     ReceivedItem,
     Schema,
     ZoneParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 contract TestPostExecution is ERC165, ZoneInterface {
     function authorizeOrder(

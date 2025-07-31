@@ -13,7 +13,7 @@ import {
     Execution,
     Fulfillment,
     FulfillmentComponent
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import {
     NavigatorContext,

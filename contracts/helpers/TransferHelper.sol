@@ -3,36 +3,36 @@ pragma solidity ^0.8.13;
 
 import {
     IERC721Receiver
-} from "seaport-types/src/interfaces/IERC721Receiver.sol";
+} from "seaport-types-16/src/interfaces/IERC721Receiver.sol";
 
 import {
     TransferHelperItem,
     TransferHelperItemsWithRecipient
-} from "seaport-types/src/helpers/TransferHelperStructs.sol";
+} from "seaport-types-16/src/helpers/TransferHelperStructs.sol";
 
 import {
     ConduitItemType
-} from "seaport-types/src/conduit/lib/ConduitEnums.sol";
+} from "seaport-types-16/src/conduit/lib/ConduitEnums.sol";
 
 import {
     ConduitInterface
-} from "seaport-types/src/interfaces/ConduitInterface.sol";
+} from "seaport-types-16/src/interfaces/ConduitInterface.sol";
 
 import {
     ConduitControllerInterface
-} from "seaport-types/src/interfaces/ConduitControllerInterface.sol";
+} from "seaport-types-16/src/interfaces/ConduitControllerInterface.sol";
 
 import {
     ConduitTransfer
-} from "seaport-types/src/conduit/lib/ConduitStructs.sol";
+} from "seaport-types-16/src/conduit/lib/ConduitStructs.sol";
 
 import {
     TransferHelperInterface
-} from "seaport-types/src/interfaces/TransferHelperInterface.sol";
+} from "seaport-types-16/src/interfaces/TransferHelperInterface.sol";
 
 import {
     TransferHelperErrors
-} from "seaport-types/src/interfaces/TransferHelperErrors.sol";
+} from "seaport-types-16/src/interfaces/TransferHelperErrors.sol";
 
 /**
  * @title TransferHelper

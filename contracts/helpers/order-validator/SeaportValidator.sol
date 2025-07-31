@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 import {
     Order,
     OrderParameters,
@@ -10,28 +10,28 @@ import {
     ConsiderationItem,
     Schema,
     ZoneParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 import { ConsiderationTypeHashes } from "./lib/ConsiderationTypeHashes.sol";
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "seaport-types-16/src/interfaces/ConsiderationInterface.sol";
 import {
     ConduitControllerInterface
-} from "seaport-types/src/interfaces/ConduitControllerInterface.sol";
+} from "seaport-types-16/src/interfaces/ConduitControllerInterface.sol";
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
-import { ZoneInterface } from "seaport-types/src/interfaces/ZoneInterface.sol";
+} from "seaport-types-16/src/interfaces/ContractOffererInterface.sol";
+import { ZoneInterface } from "seaport-types-16/src/interfaces/ZoneInterface.sol";
 import {
     GettersAndDerivers
-} from "seaport-core/src/lib/GettersAndDerivers.sol";
+} from "seaport-core-16/src/lib/GettersAndDerivers.sol";
 import { SeaportValidatorInterface } from "./lib/SeaportValidatorInterface.sol";
-import { ZoneInterface } from "seaport-types/src/interfaces/ZoneInterface.sol";
+import { ZoneInterface } from "seaport-types-16/src/interfaces/ZoneInterface.sol";
 import {
     ERC20Interface,
     ERC721Interface,
     ERC1155Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "seaport-types-16/src/interfaces/AbridgedTokenInterfaces.sol";
 import { IERC165 } from "@openzeppelin/contracts/interfaces/IERC165.sol";
 import { IERC2981 } from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import {
@@ -59,7 +59,7 @@ import {
     GenericIssue,
     ConsiderationItemConfiguration
 } from "./lib/SeaportValidatorTypes.sol";
-import { Verifiers } from "seaport-core/src/lib/Verifiers.sol";
+import { Verifiers } from "seaport-core-16/src/lib/Verifiers.sol";
 import { ReadOnlyOrderValidator } from "./lib/ReadOnlyOrderValidator.sol";
 import { SeaportValidatorHelper } from "./lib/SeaportValidatorHelper.sol";
 

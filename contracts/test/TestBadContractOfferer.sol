@@ -3,19 +3,19 @@ pragma solidity ^0.8.13;
 
 import {
     ERC721Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "seaport-types-16/src/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
+} from "seaport-types-16/src/interfaces/ContractOffererInterface.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import {
     ReceivedItem,
     Schema,
     SpentItem
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 contract TestBadContractOfferer is ContractOffererInterface {
     error IntentionalRevert();

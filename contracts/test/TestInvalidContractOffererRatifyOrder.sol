@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import {
     ReceivedItem,
     SpentItem
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import { TestContractOfferer } from "./TestContractOfferer.sol";
 

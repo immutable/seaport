@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {
     ConduitController as CoreConduitController
-} from "seaport-core/src/conduit/ConduitController.sol";
+} from "seaport-core-16/src/conduit/ConduitController.sol";
 
 /**
  * @title ConduitController

@@ -5,7 +5,7 @@ import {
     ERC20Interface,
     ERC721Interface,
     ERC1155Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "seaport-types-16/src/interfaces/AbridgedTokenInterfaces.sol";
 
 import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {
@@ -13,15 +13,15 @@ import {
     Schema,
     SpentItem,
     ZoneParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
+} from "seaport-types-16/src/interfaces/ContractOffererInterface.sol";
 
-import { ZoneInterface } from "seaport-types/src/interfaces/ZoneInterface.sol";
+import { ZoneInterface } from "seaport-types-16/src/interfaces/ZoneInterface.sol";
 
 /**
  * @dev This contract is used to validate transfer within the zone/offerer.  Use

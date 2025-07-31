@@ -5,24 +5,24 @@ import {
     ERC20Interface,
     ERC721Interface,
     ERC1155Interface
-} from "seaport-types/src/interfaces/AbridgedTokenInterfaces.sol";
+} from "seaport-types-16/src/interfaces/AbridgedTokenInterfaces.sol";
 
 import {
     ReceivedItem,
     Schema,
     SpentItem,
     ZoneParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
-import { ItemType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { ItemType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "seaport-types-16/src/interfaces/ConsiderationInterface.sol";
 
 import {
     ContractOffererInterface
-} from "seaport-types/src/interfaces/ContractOffererInterface.sol";
+} from "seaport-types-16/src/interfaces/ContractOffererInterface.sol";
 
 contract TestCalldataHashContractOfferer is ContractOffererInterface {
     error InvalidNativeTokenBalance(

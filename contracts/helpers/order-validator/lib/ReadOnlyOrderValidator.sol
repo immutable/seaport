@@ -1,29 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { OrderType } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { OrderType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import {
     Order,
     OrderComponents,
     OrderParameters,
     OrderStatus
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import {
     _revertConsiderationLengthNotEqualToTotalOriginal,
     _revertMissingOriginalConsiderationItems
-} from "seaport-types/src/lib/ConsiderationErrors.sol";
+} from "seaport-types-16/src/lib/ConsiderationErrors.sol";
 
 import {
     SignatureVerification
-} from "seaport-core/src/lib/SignatureVerification.sol";
+} from "seaport-core-16/src/lib/SignatureVerification.sol";
 
 import {
     _revertOrderAlreadyFilled,
     _revertOrderIsCancelled,
     _revertOrderPartiallyFilled
-} from "seaport-types/src/lib/ConsiderationErrors.sol";
+} from "seaport-types-16/src/lib/ConsiderationErrors.sol";
 
 import { SeaportInterface } from "seaport-sol/src/SeaportInterface.sol";
 
@@ -67,7 +67,7 @@ import {
     OneWordShift,
     ThirtyOneBytes,
     TwoWords
-} from "seaport-types/src/lib/ConsiderationConstants.sol";
+} from "seaport-types-16/src/lib/ConsiderationConstants.sol";
 
 contract ReadOnlyOrderValidator is SignatureVerification {
     function canValidate(

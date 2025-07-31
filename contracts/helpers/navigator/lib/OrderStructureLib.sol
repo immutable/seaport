@@ -17,18 +17,18 @@ import {
     Order,
     OrderComponents,
     OrderParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import {
     BasicOrderRouteType,
     BasicOrderType,
     ItemType,
     OrderType
-} from "seaport-types/src/lib/ConsiderationEnums.sol";
+} from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import {
     ConsiderationInterface
-} from "seaport-types/src/interfaces/ConsiderationInterface.sol";
+} from "seaport-types-16/src/interfaces/ConsiderationInterface.sol";
 
 error TypeNotFound();
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import { Conduit as CoreConduit } from "seaport-core/src/conduit/Conduit.sol";
+import { Conduit as CoreConduit } from "seaport-core-16/src/conduit/Conduit.sol";
 
 /**
  * @title Conduit

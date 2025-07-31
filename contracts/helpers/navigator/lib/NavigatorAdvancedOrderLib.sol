@@ -7,9 +7,9 @@ import {
     OfferItem,
     ConsiderationItem,
     OrderParameters
-} from "seaport-types/src/lib/ConsiderationStructs.sol";
+} from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
-import { Side } from "seaport-types/src/lib/ConsiderationEnums.sol";
+import { Side } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
 import { CriteriaHelperLib } from "./CriteriaHelperLib.sol";
 

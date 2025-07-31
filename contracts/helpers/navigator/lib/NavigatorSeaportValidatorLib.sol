@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { AdvancedOrder } from "seaport-types/src/lib/ConsiderationStructs.sol";
+import { AdvancedOrder } from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import { AdvancedOrderLib } from "seaport-sol/src/lib/AdvancedOrderLib.sol";
 

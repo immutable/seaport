@@ -6,7 +6,7 @@ import {
     OneWord,
     OneWordShift,
     ThirtyOneBytes
-} from "seaport-types/src/lib/ConsiderationConstants.sol";
+} from "seaport-types-16/src/lib/ConsiderationConstants.sol";
 
 /**
  * @title TypehashDirectory

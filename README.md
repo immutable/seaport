@@ -1,3 +1,8 @@
+# Immutable modified Seaport repo
+
+All references to seaport-core, seaport-types, and seaport-sol have been changed to refer to seaport-core-16, seaport-types-16, and seaport-sol-16. This has been done to allow the ImmutableSeaport code to be compiled both for Seaport 1.5 and 1.6. The test code in this repo and scripts have not been updated. As such, the code may not compile and tests might not work.
+
+
 ![Seaport](img/Seaport-banner.png)
 
 [![Version][version-badge]][version-link]

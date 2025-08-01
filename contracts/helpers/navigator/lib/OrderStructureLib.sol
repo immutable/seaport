@@ -8,7 +8,7 @@ import {
     OrderComponentsLib,
     OrderLib,
     OrderParametersLib
-} from "seaport-sol/src/SeaportSol.sol";
+} from "seaport-sol-16/src/SeaportSol.sol";
 
 import {
     AdvancedOrder,

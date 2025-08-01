@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { UnavailableReason } from "seaport-sol/src/SpaceEnums.sol";
+import { UnavailableReason } from "seaport-sol-16/src/SpaceEnums.sol";
 
 import { AdvancedOrder } from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
-import { AdvancedOrderLib } from "seaport-sol/src/lib/AdvancedOrderLib.sol";
+import { AdvancedOrderLib } from "seaport-sol-16/src/lib/AdvancedOrderLib.sol";
 
 import { NavigatorContext } from "./SeaportNavigatorTypes.sol";
 

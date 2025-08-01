@@ -5,13 +5,13 @@ import { Fulfillment } from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import {
     FulfillmentGeneratorLib
-} from "seaport-sol/src/fulfillments/lib/FulfillmentLib.sol";
+} from "seaport-sol-16/src/fulfillments/lib/FulfillmentLib.sol";
 
 import {
     FulfillmentComponent,
     MatchComponent,
     OrderDetails
-} from "seaport-sol/src/fulfillments/lib/Structs.sol";
+} from "seaport-sol-16/src/fulfillments/lib/Structs.sol";
 
 import { NavigatorContext } from "./SeaportNavigatorTypes.sol";
 

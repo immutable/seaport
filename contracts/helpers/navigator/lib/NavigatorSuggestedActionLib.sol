@@ -13,11 +13,11 @@ import {
 
 import { ItemType } from "seaport-types-16/src/lib/ConsiderationEnums.sol";
 
-import { UnavailableReason } from "seaport-sol/src/SpaceEnums.sol";
+import { UnavailableReason } from "seaport-sol-16/src/SpaceEnums.sol";
 
-import { OrderDetails } from "seaport-sol/src/fulfillments/lib/Structs.sol";
+import { OrderDetails } from "seaport-sol-16/src/fulfillments/lib/Structs.sol";
 
-import { AdvancedOrderLib } from "seaport-sol/src/lib/AdvancedOrderLib.sol";
+import { AdvancedOrderLib } from "seaport-sol-16/src/lib/AdvancedOrderLib.sol";
 
 import { Family, OrderStructureLib, Structure } from "./OrderStructureLib.sol";
 

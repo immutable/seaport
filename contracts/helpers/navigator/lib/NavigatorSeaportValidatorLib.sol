@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import { AdvancedOrder } from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
-import { AdvancedOrderLib } from "seaport-sol/src/lib/AdvancedOrderLib.sol";
+import { AdvancedOrderLib } from "seaport-sol-16/src/lib/AdvancedOrderLib.sol";
 
 import { ErrorsAndWarnings } from "../../order-validator/SeaportValidator.sol";
 

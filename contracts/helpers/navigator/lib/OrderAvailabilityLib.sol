@@ -7,7 +7,7 @@ import {
 
 import { AdvancedOrder } from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
-import { UnavailableReason } from "seaport-sol/src/SpaceEnums.sol";
+import { UnavailableReason } from "seaport-sol-16/src/SpaceEnums.sol";
 
 import { OrderStructureLib, State } from "./OrderStructureLib.sol";
 

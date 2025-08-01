@@ -20,13 +20,13 @@ import {
 
 import {
     MatchComponent
-} from "seaport-sol/src/lib/types/MatchComponentType.sol";
+} from "seaport-sol-16/src/lib/types/MatchComponentType.sol";
 
-import { OrderDetails } from "seaport-sol/src/fulfillments/lib/Structs.sol";
+import { OrderDetails } from "seaport-sol-16/src/fulfillments/lib/Structs.sol";
 
 import {
     FulfillmentStrategy
-} from "seaport-sol/src/fulfillments/lib/FulfillmentLib.sol";
+} from "seaport-sol-16/src/fulfillments/lib/FulfillmentLib.sol";
 
 import {
     SeaportValidatorInterface,

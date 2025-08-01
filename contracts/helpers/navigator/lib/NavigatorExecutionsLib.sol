@@ -9,11 +9,11 @@ import { Execution } from "seaport-types-16/src/lib/ConsiderationStructs.sol";
 
 import {
     FulfillmentDetails
-} from "seaport-sol/src/fulfillments/lib/Structs.sol";
+} from "seaport-sol-16/src/fulfillments/lib/Structs.sol";
 
 import {
     ExecutionHelper
-} from "seaport-sol/src/executions/ExecutionHelper.sol";
+} from "seaport-sol-16/src/executions/ExecutionHelper.sol";
 
 import { NavigatorContext } from "./SeaportNavigatorTypes.sol";
 

@@ -25,7 +25,9 @@ import {
     _revertOrderPartiallyFilled
 } from "seaport-types-16/src/lib/ConsiderationErrors.sol";
 
-import { SeaportInterface } from "seaport-sol-16/src/SeaportInterface.sol";
+//import { SeaportInterface } from "seaport-sol-16/src/SeaportInterface.sol";
+import { ConsiderationInterface as SeaportInterface } from
+    "seaport-types-16/src/interfaces/ConsiderationInterface.sol";
 
 import {
     BulkOrder_Typehash_Height_One,
